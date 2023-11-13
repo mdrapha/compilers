@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with JFLAP 7.1 -->
+<structure>
+    <type>fa</type>
+    <automaton>
+    
+        <!-- States -->
+        <state id="0" name="S0">
+            <x>50</x>
+            <y>50</y>
+            <initial/>
+        </state>
+        <state id="1" name="S1">
+            <x>150</x>
+            <y>50</y>
+        </state>
+        <state id="2" name="S2">
+            <x>250</x>
+            <y>50</y>
+            <final/>
+        </state>
+        <state id="3" name="S3">
+            <x>350</x>
+            <y>50</y>
+            <!-- Pode ser um estado final ou não, dependendo das regras -->
+        </state>
+        <state id="4" name="S4">
+            <x>450</x>
+            <y>50</y>
+            <!-- Pode ser um estado final ou não, dependendo das regras -->
+        </state>
+        <state id="5" name="S5">
+            <x>550</x>
+            <y>50</y>
+            <!-- Pode ser um estado final ou não, dependendo das regras -->
+        </state>
+        <state id="6" name="S6">
+            <x>650</x>
+            <y>50</y>
+            <!-- Pode ser um estado final ou não, dependendo das regras -->
+        </state>
+        <state id="7" name="S7">
+            <x>750</x>
+            <y>50</y>
+            <!-- Pode ser um estado final ou não, dependendo das regras -->
+        </state>
+        <state id="8" name="S8">
+            <x>850</x>
+            <y>50</y>
+            <!-- Pode ser um estado final ou não, dependendo das regras -->
+        </state>
+        <state id="9" name="S9">
+            <x>950</x>
+            <y>50</y>
+            <!-- Pode ser um estado final ou não, dependendo das regras -->
+        </state>
+        <state id="10" name="S10">
+            <x>1050</x>
+            <y>50</y>
+            <!-- Pode ser um estado final ou não, dependendo das regras -->
+        </state>
+        <state id="11" name="S11">
+            <x>1150</x>
+            <y>50</y>
+            <!-- Pode ser um estado final ou não, dependendo das regras -->
+        </state>
+        <state id="12" name="S12">
+            <x>1250</x>
+            <y>50</y>
+            <!-- Pode ser um estado final ou não, dependendo das regras -->
+        </state>
+        <state id="13" name="S13">
+            <x>1350</x>
+            <y>50</y>
+            <!-- Pode ser um estado final ou não, dependendo das regras -->
+        </state>
+        <state id="14" name="S14">
+            <x>1450</x>
+            <y>50</y>
+            <!-- Pode ser um estado final ou não, dependendo das regras -->
+        </state>
+        <state id="15" name="S15">
+            <x>1550</x>
+            <y>50</y>
+            <!-- Pode ser um estado final ou não, dependendo das regras -->
+        </state>
+        <state id="16" name="S16">
+            <x>1650</x>
+            <y>50</y>
+            <!-- Pode ser um estado final ou não, dependendo das regras -->
+        </state>
+        <state id="17" name="S17">
+            <x>1750</x>
+            <y>50</y>
+            <!-- Pode ser um estado final ou não, dependendo das regras -->
+        </state>
+        <state id="18" name="S18">
+            <x>1850</x>
+            <y>50</y>
+            <!-- Pode ser um estado final ou não, dependendo das regras -->
+        </state>
+        <state id="19" name="S19">
+            <x>1950</x>
+            <y>50</y>
+            <!-- Pode ser um estado final ou não, dependendo das regras -->
+        </state>
+        <state id="20" name="S20">
+            <x>2050</x>
+            <y>50</y>
+            <!-- Pode ser um estado final ou não, dependendo das regras -->
+        </state>
+        <state id="21" name="S21">
+            <x>2150</x>
+            <y>50</y>
+            <!-- Pode ser um estado final ou não, dependendo das regras -->
+        </state>
+        <state id="22" name="S22">
+            <x>2250</x>
+            <y>50</y>
+            <!-- Pode ser um estado final ou não, dependendo das regras -->
+        </state>
+        <!-- Adicione mais estados de acordo com as regras -->
+
+        <!-- Transições -->
+        <transition>
+            <from>0</from>
+            <to>1</to>
+            <read>\n</read>
+        </transition>
+        <transition>
+            <from>0</from>
+            <to>1</to>
+            <read>[0-9]</read>
+        </transition>
+        <transition>
+            <from>1</from>
+            <to>2</to>
+            <read>[a-zA-Z0-9]</read>
+        </transition>
+        <transition>
+            <from>1</from>
+            <to>3</to>
+            <read>[a-zA-Z]</read>
+        </transition>
+        <transition>
+            <from>3</from>
+            <to>4</to>
+            <read>[a-zA-Z0-9]</read>
+        </transition>
+        <transition>
+            <from>0</from>
+            <to>5</to>
+            <read>\#</read>
+        </transition>
+        <transition>
+            <from>1</from>
+            <to>6</to>
+            <read>\#</read>
+        </transition>
+        <transition>
+            <from>0</from>
+            <to>7</to>
+            <read>\)</read>
+        </transition>
+        <transition>
+            <from>0</from>
+            <to>8</to>
+            <read>\(</read>
+        </transition>
+        <transition>
+            <from>0</from>
+            <to>9</to>
+            <read>\{</read>
+        </transition>
+        <transition>
+            <from>0</from>
+            <to>10</to>
+            <read>\}</read>
+        </transition>
+        <transition>
+            <from>0</from>
+            <to>11</to>
+            <read>\[</read>
+        </transition>
+        <transition>
+            <from>0</from>
+            <to>12</to>
+            <read>\]</read>
+        </transition>
+        <transition>
+            <from>0</from>
+            <to>13</to>
+            <read>\;</read>
+        </transition>
+        <transition>
+            <from>0</from>
+            <to>14</to>
+            <read>,</read>
+        </transition>
+        <transition>
+            <from>0</from>
+            <to>15</to>
+            <read>=</read>
+        </transition>
+        <transition>
+            <from>0</from>
+            <to>16</to>
+            <read><</read>
+        </transition>
+        <transition>
+            <from>0</from>
+            <to>17</to>
+            <read><=</read>
+        </transition>
+        <transition>
+            <from>0</from>
+            <to>18</to>
+            <read>></read>
+        </transition>
+        <transition>
+            <from>0</from>
+            <to>19</to>
+            <read>>=</read>
+        </transition>
+        <transition>
+            <from>0</from>
+            <to>20</to>
+            <read>==</read>
+        </transition>
+        <transition>
+            <from>0</from>
+            <to>21</to>
+            <read>!=</read>
+        </transition>
+        <transition>
+            <from>0</from>
+            <to>22</to>
+            <read>\.</read>
+        </transition>
+
+        <!-- Adicione mais transições de acordo com as regras -->
+
+   </automaton>
+</structure>
