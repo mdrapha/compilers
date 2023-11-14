@@ -5,7 +5,7 @@ CC = gcc
 CFLAGS = -Wall -g
 
 # Lista dos arquivos-fonte
-SOURCES = main.c funcs.c lex.c errors.c
+SOURCES = main.c funcs.c lex.c 
 
 # Nome do arquivo de saída
 OUTPUT = lexer

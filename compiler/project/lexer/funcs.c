@@ -1,38 +1,10 @@
 #include "funcs.h"
 
 int currentLine = 1;
-int iteration = 0;
-int errorListSize = 0;
-LexError *lexErrorList = NULL;
-
-// Function to initialize a list of lexical errors
-LexError *initLexErrorList()
-{
-    LexError *lexErrorList = malloc(sizeof(LexError));
-    lexErrorList->line = 0;
-    lexErrorList->pos = 0;
-    lexErrorList->error = NULL;
-    lexErrorList->next = NULL;
-    return lexErrorList;
-}
-
-// Function to add a new error to the list
-LexError *addLexError(LexError *list, int line, int pos, const char *error)
-{
-    LexError *newError = (LexError *)malloc(sizeof(LexError));
-    if (newError == NULL)
-    {
-        fprintf(stderr, "Error: Memory allocation failed.\n");
-        exit(1);
-    }
-
-    newError->line = line;
-    newError->pos = pos;
-    newError->error = strdup(error); // Copy the error description to the new structure
-    newError->next = list;           // The new error becomes the first in the list
-
-    return newError;
-}
+int tokenCount = 0;
+int tokenLine = 1;
+int tokenCol = 1;
+char tokenName[MAX_LEXEME_SIZE];
 
 // Function to create Analyser struct
 Analysis *createAnalyser(lexeme *lex, Buffer *buffer, FILE *file)
@@ -44,17 +16,14 @@ Analysis *createAnalyser(lexeme *lex, Buffer *buffer, FILE *file)
     return info;
 }
 
-// Function to free the list of lexical errors
-void freeLexErrorList(LexError *list)
+// Function to free the Analyser struct
+void freeAnalyser(Analysis *info)
 {
-    while (list != NULL)
-    {
-        LexError *next = list->next;
-        free(list->error);
-        free(list);
-        list = next;
-    }
+    free_lexeme(info->lex);
+    free_buffer(info->buffer);
+    free(info);
 }
+
 
 // Function to free the buffer
 void free_buffer(Buffer *buffer)
@@ -698,8 +667,7 @@ Analysis *analyser(Analysis *info)
         unget_char(info->buffer);
     }
 
-    // Tenta assim:
-    // if(strlen(lex.name) > 0){
+
     
     lex.token = state;
     lex.token = get_token(&lex);

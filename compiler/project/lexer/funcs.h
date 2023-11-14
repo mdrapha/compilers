@@ -7,7 +7,6 @@
 #include <ctype.h>
 #include <stdbool.h>
 
-#include "errors.h"
 #include "lex.h"
 
 #define BUFFER_SIZE 256
@@ -31,10 +30,10 @@ typedef struct lexeme {
     int line;
 }lexeme;
 
+/*Structure for the lexer*/
 typedef struct Analysis {
     Buffer *buffer;
     lexeme *lex;
-    LexError *errorList;
     FILE *file;
     char lastChar;
 }Analysis;
