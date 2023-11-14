@@ -45,7 +45,8 @@ typedef struct Analysis {
 typedef struct SymbolTable {
     char *name;
     int type;
-    int line;
+    int lineDeclared;
+    int *linesUsed;
     int scope;
     int size;
     int offset;

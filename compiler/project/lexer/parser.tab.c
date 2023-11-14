@@ -74,6 +74,7 @@
 #include <string.h>
 
 #include "funcs.h"
+#include "globals.h"
 
 TreeNode *root = NULL;
 
@@ -1860,9 +1861,9 @@ int yylex(){
     Analysis *temp = info;
 
         temp = analyser(info);
-        token= *temp->lex->token;
-        strcpy(lexema,*temp->lex->name);
-        actualLine=*temp->lex->line;
+        token= temp->lex->token;
+        strcpy(currentTokenValue,*temp->lex->name);
+        currentTokenLine=temp->lex->line;
         info = temp;
     
     return token;
