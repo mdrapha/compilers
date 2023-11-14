@@ -41,10 +41,21 @@ typedef struct Analysis {
 }Analysis;
 
 
+/*Structure for the symbol table*/
+typedef struct SymbolTable {
+    char *name;
+    int type;
+    int line;
+    int scope;
+    int size;
+    int offset;
+    int isFunction;
+    int numParams;
+    int *params;
+    int returnType;
+    struct SymbolTable *next;
 
-
-/*Variable to manage the current line*/
-extern int currentLine;
+}SymbolTable;
 
 Analysis *createAnalyser(lexeme *lex, Buffer *buffer,FILE *file); /*Function to analyse lexemes*/
 void fill_buffer(Buffer *buffer, FILE *file); /*Function to free the buffer*/

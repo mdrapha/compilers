@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include "funcs.h"
 #include "lex.h"
+#include "globals.h"
+
 
 int main(int argc, char *argv[])
 {
@@ -12,14 +14,14 @@ int main(int argc, char *argv[])
         exit(1);
     }   
 
-    FILE *file = fopen(file_name, "r");
+    file = fopen(file_name, "r");
 
     if(file == NULL){
         printf("Error opening file\n");
         exit(1);
     }
 
-    Buffer *buffer = malloc(sizeof(Buffer));
+    buffer = malloc(sizeof(Buffer));
     initBuffer(buffer);
     lexeme lex;
     lex.name = malloc(sizeof(char) * MAX_LEXEME_SIZE);
