@@ -1,83 +1,10 @@
 %{
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-typedef enum { 
-    nPrograma, 
-    nDeclaracaoLista, 
-    nDeclaracao, 
-    nVarDeclaracao, 
-    nTipoEspecificador, 
-    nFunDeclaracao, 
-    nParams, 
-    nParamLista, 
-    nParam, 
-    nCompostoDecl, 
-    nLocalDeclaracoes, 
-    nStatementLista, 
-    nStatement, 
-    nExpressaoDecl, 
-    nSelecaoDecl, 
-    nIteracaoDecl, 
-    nRetornoDecl, 
-    nExpressao, 
-    nVar, 
-    nSimplesExpressao, 
-    nRelacional, 
-    nSomaExpressao, 
-    nTermo, 
-    nFator, 
-    nAtivacao, 
-    nArgs, 
-    nArgLista, 
-} NodeType;
+TreeNode *root = NULL;
 
 
-typedef struct treeNode {
-    NodeType nodeType;
-    struct treeNode *children[3]; // Ajuste conforme necessário
-    char *lexeme;
-} TreeNode;
-
-TreeNode *createNode(NodeType type, TreeNode *child1, TreeNode *child2, TreeNode *child3, char *lexeme) {
-    TreeNode *node = (TreeNode *)malloc(sizeof(TreeNode));
-    node->nodeType = type;
-    node->children[0] = child1;
-    node->children[1] = child2;
-    node->children[2] = child3;
-    node->lexeme = lexeme ? strdup(lexeme) : NULL;
-    return node;
-}
-
-void freeNode(TreeNode *node) {
-    if (node == NULL) return;
-    free(node->lexeme);
-    for (int i = 0; i < 3; ++i) {
-        if (node->children[i]) {
-            freeNode(node->children[i]);
-        }
-    }
-    free(node);
-}
-
-void printNode(TreeNode *node, int level) {
-    if (node == NULL) return;
-    for (int i = 0; i < level; ++i) printf("  ");
-    switch (node->nodeType) {
-        case nPrograma: printf("Programa\n"); break;
-        case nDeclaracaoLista: printf("Lista de Declaração\n"); break;
-        case nVarDeclaracao: printf("Declaração de Variável\n"); break;
-        case nTipoEspecificador: printf("Especificador de Tipo: %s\n", node->lexeme); break;
-        // ... outros tipos de nós
-    }
-    for (int i = 0; i < 3; ++i) {
-        printNode(node->children[i], level + 1);
-    }
-}
 
 void yyerror(const char *s) {
-    fprintf(stderr, "Erro: %s\n", s);
+    fprintf(stderr, "Erro de análise: %s\n", s);
 }
 
 extern int yylex();
@@ -88,12 +15,12 @@ extern int yylex();
     char *string;
 }
 
-%token <string> ID NUM
-%token <string> INT VOID
-%token <string> IF ELSE WHILE RETURN
-%token <string> PLUS MINUS TIMES DIVIDE ASSIGN
-%token <string> EQUAL NEQUAL LT GT LTE GTE
-%token <string> LPAREN RPAREN LBRACE RBRACE LBRACKET RBRACKET SEMI COMMA
+%token T_ID T_NUM
+%token T_INT T_VOID
+%token T_IF T_ELSE T_WHILE T_RETURN
+%token T_PLUS T_MINUS T_MULT T_DIV T_ATRB
+%token T_EQ T_NEQ T_LT T_GT T_LTE T_GTE
+%token T_LPAREN T_RPAREN T_LBRACE T_RBRACE T_LSQBRA T_RSQBRA T_SEMI T_COMMA
 
 %type <node> programa declaracao_lista declaracao var_declaracao tipo_especificador
 %type <node> fun_declaracao params param_lista param composto_decl local_declaracoes

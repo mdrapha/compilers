@@ -8,6 +8,7 @@
 #include <stdbool.h>
 
 #include "lex.h"
+#include "parse_tree.h"
 
 #define BUFFER_SIZE 256
 #define MAX_LEXEME_SIZE 64
