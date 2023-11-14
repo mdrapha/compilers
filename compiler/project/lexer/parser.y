@@ -1,11 +1,13 @@
 %{
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include "funcs.h"
+
 TreeNode *root = NULL;
 
-
-
-void yyerror(const char *s) {
-    fprintf(stderr, "Erro de análise: %s\n", s);
-}
+void yyerror(char *s);
 
 extern int yylex();
 %}
@@ -13,14 +15,16 @@ extern int yylex();
 %union {
     TreeNode *node;
     char *string;
+    int line;
+    int num;
 }
 
-%token T_ID T_NUM
-%token T_INT T_VOID
-%token T_IF T_ELSE T_WHILE T_RETURN
-%token T_PLUS T_MINUS T_MULT T_DIV T_ATRB
-%token T_EQ T_NEQ T_LT T_GT T_LTE T_GTE
-%token T_LPAREN T_RPAREN T_LBRACE T_RBRACE T_LSQBRA T_RSQBRA T_SEMI T_COMMA
+%token <num>  T_ID T_NUM
+%token <num>  T_INT T_VOID
+%token <num>  T_IF T_ELSE T_WHILE T_RETURN
+%token <num>  T_PLUS T_MINUS T_MULT T_DIV T_ATRB
+%token <num>  T_EQ T_NEQ T_LT T_GT T_LTE T_GTE
+%token <num>  T_LPAREN T_RPAREN T_LBRACE T_RBRACE T_LSQBRA T_RSQBRA T_SEMI T_COMMA
 
 %type <node> programa declaracao_lista declaracao var_declaracao tipo_especificador
 %type <node> fun_declaracao params param_lista param composto_decl local_declaracoes
@@ -47,17 +51,17 @@ declaracao
     ;
 
 var_declaracao
-    : tipo_especificador ID SEMI { $$ = createNode(nVarDeclaracao, $1, NULL, NULL, $2); }
-    | tipo_especificador ID LBRACKET NUM RBRACKET SEMI { $$ = createNode(nVarDeclaracao, $1, NULL, NULL, $2); }
+    : tipo_especificador T_ID T_SEMI { $$ = createNode(nVarDeclaracao, $1, NULL, NULL, $2); }
+    | tipo_especificador T_ID T_LSQBRA T_NUM T_RSQBRA T_SEMI { $$ = createNode(nVarDeclaracao, $1, NULL, NULL, $2); }
     ;
 
 tipo_especificador
-    : INT { $$ = createNode(nTipoEspecificador, NULL, NULL, NULL, "int"); }
-    | VOID { $$ = createNode(nTipoEspecificador, NULL, NULL, NULL, "void"); }
+    : T_INT { $$ = createNode(nTipoEspecificador, NULL, NULL, NULL, "int"); }
+    | T_VOID { $$ = createNode(nTipoEspecificador, NULL, NULL, NULL, "void"); }
     ;
 
 fun_declaracao
-    : tipo_especificador ID LPAREN params RPAREN composto_decl {
+    : tipo_especificador T_ID T_LPAREN params T_RPAREN composto_decl {
         $$ = createNode(nFunDeclaracao, $1, $4, $6, $2);
     }
     ;
@@ -66,13 +70,13 @@ params
     : param_lista {
         $$ = $1;
     }
-    | VOID {
+    | T_VOID {
         $$ = createNode(nParams, NULL, NULL, NULL, "void");
     }
     ;
 
 param_lista
-    : param_lista COMMA param {
+    : param_lista T_COMMA param {
         $$ = createNode(nParamLista, $1, $3, NULL, NULL);
     }
     | param {
@@ -81,16 +85,16 @@ param_lista
     ;
 
 param
-    : tipo_especificador ID {
+    : tipo_especificador T_ID {
         $$ = createNode(nParam, $1, NULL, NULL, $2);
     }
-    | tipo_especificador ID LBRACKET RBRACKET {
-        $$ = createNode(nParam, $1, NULL, NULL, $2); // You might want to distinguish arrays in your node
+    | tipo_especificador T_ID T_LSQBRA T_RSQBRA {
+        $$ = createNode(nParam, $1, NULL, NULL, $2); 
     }
     ;
 
 composto_decl
-    : LBRACE local_declaracoes statement_lista RBRACE {
+    : T_LBRACE local_declaracoes statement_lista T_RBRACE {
         $$ = createNode(nCompostoDecl, $2, $3, NULL, NULL);
     }
     ;
@@ -132,40 +136,40 @@ statement
     ;
 
 expressao_decl
-    : expressao SEMI {
+    : expressao T_SEMI {
         $$ = createNode(nExpressaoDecl, $1, NULL, NULL, NULL);
     }
-    | SEMI {
+    | T_SEMI {
         $$ = createNode(nExpressaoDecl, NULL, NULL, NULL, NULL);
     }
     ;
 
 selecao_decl
-    : IF LPAREN expressao RPAREN statement {
+    : T_IF T_LPAREN expressao T_RPAREN statement {
         $$ = createNode(nSelecaoDecl, $3, $5, NULL, "if");
     }
-    | IF LPAREN expressao RPAREN statement ELSE statement {
+    | T_IF T_LPAREN expressao T_RPAREN statement T_ELSE statement {
         $$ = createNode(nSelecaoDecl, $3, $5, $7, "if-else");
     }
     ;
 
 iteracao_decl
-    : WHILE LPAREN expressao RPAREN statement {
+    : T_WHILE T_LPAREN expressao T_RPAREN statement {
         $$ = createNode(nIteracaoDecl, $3, $5, NULL, "while");
     }
     ;
 
 retorno_decl
-    : RETURN SEMI {
+    : T_RETURN T_SEMI {
         $$ = createNode(nRetornoDecl, NULL, NULL, NULL, "return");
     }
-    | RETURN expressao SEMI {
+    | T_RETURN expressao T_SEMI {
         $$ = createNode(nRetornoDecl, $2, NULL, NULL, "return");
     }
     ;
 
 expressao
-    : var ASSIGN expressao {
+    : var T_ATRB expressao {
         $$ = createNode(nExpressao, $1, $3, NULL, "=");
     }
     | simples_expressao {
@@ -174,11 +178,11 @@ expressao
     ;
 
 var
-    : ID {
+    : T_ID {
         $$ = createNode(nVar, NULL, NULL, NULL, $1);
     }
-    | ID LBRACKET expressao RBRACKET {
-        $$ = createNode(nVar, NULL, $3, NULL, $1); // Array access
+    | T_ID T_LSQBRA expressao T_RSQBRA {
+        $$ = createNode(nVar, NULL, $3, NULL, $1); 
     }
     ;
 
@@ -192,31 +196,31 @@ simples_expressao
     ;
 
 relacional
-    : LT {
+    : T_LT {
         $$ = createNode(nRelacional, NULL, NULL, NULL, "<");
     }
-    | LTE {
+    | T_LTE {
         $$ = createNode(nRelacional, NULL, NULL, NULL, "<=");
     }
-    | GT {
+    | T_GT {
         $$ = createNode(nRelacional, NULL, NULL, NULL, ">");
     }
-    | GTE {
+    | T_GTE {
         $$ = createNode(nRelacional, NULL, NULL, NULL, ">=");
     }
-    | EQUAL {
+    | T_EQ {
         $$ = createNode(nRelacional, NULL, NULL, NULL, "==");
     }
-    | NEQUAL {
+    | T_NEQ {
         $$ = createNode(nRelacional, NULL, NULL, NULL, "!=");
     }
     ;
 
 soma_expressao
-    : soma_expressao PLUS termo {
+    : soma_expressao T_PLUS termo {
         $$ = createNode(nSomaExpressao, $1, $3, NULL, "+");
     }
-    | soma_expressao MINUS termo {
+    | soma_expressao T_MINUS termo {
         $$ = createNode(nSomaExpressao, $1, $3, NULL, "-");
     }
     | termo {
@@ -225,10 +229,10 @@ soma_expressao
     ;
 
 termo
-    : termo TIMES fator {
+    : termo T_MULT fator {
         $$ = createNode(nTermo, $1, $3, NULL, "*");
     }
-    | termo DIVIDE fator {
+    | termo T_DIV fator {
         $$ = createNode(nTermo, $1, $3, NULL, "/");
     }
     | fator {
@@ -237,7 +241,7 @@ termo
     ;
 
 fator
-    : LPAREN expressao RPAREN {
+    : T_LPAREN expressao T_RPAREN {
         $$ = createNode(nFator, $2, NULL, NULL, NULL);
     }
     | var {
@@ -246,14 +250,14 @@ fator
     | ativacao {
         $$ = $1;
     }
-    | NUM {
+    | T_NUM {
         $$ = createNode(nFator, NULL, NULL, NULL, $1);
     }
     ;
 
 ativacao
-    : ID LPAREN args RPAREN {
-        $$ = createNode(nAtivacao, NULL, NULL, NULL, $1); // Func call, args are handled separately
+    : T_ID T_LPAREN args T_RPAREN {
+        $$ = createNode(nAtivacao, NULL, NULL, NULL, $1);
     }
     ;
 
@@ -267,7 +271,7 @@ args
     ;
 
 arg_lista
-    : arg_lista COMMA expressao {
+    : arg_lista T_COMMA expressao {
         $$ = createNode(nArgLista, $1, $3, NULL, NULL);
     }
     | expressao {
@@ -277,5 +281,23 @@ arg_lista
 
 
 %%
+void yyerror(char *s){
+    fprintf(stderr, "Error: Semantical Problem on: %s\n", s);
+}
 
+int yylex(){
+    int token;
+    Analysis *info = createAnalyser(&lex, buffer, file);
+    Analysis *temp = info;
+
+        temp = analyser(info);
+        token= *temp->lex->token;
+        strcpy(lexema,*temp->lex->name);
+        actualLine=*temp->lex->line;
+        info = temp;
+    
+    return token;
+}
+
+%%
 

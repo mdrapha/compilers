@@ -1,4 +1,4 @@
-#include "parse_tree.h"
+#include "funcs.h"
 
 
 TreeNode *createNode(NodeType type, TreeNode *child1, TreeNode *child2, TreeNode *child3, char *lexeme) {

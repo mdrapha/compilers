@@ -9,6 +9,7 @@
 
 #include "lex.h"
 #include "parse_tree.h"
+#include "parser.tab.h"
 
 #define BUFFER_SIZE 256
 #define MAX_LEXEME_SIZE 64
