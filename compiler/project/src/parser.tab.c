@@ -73,7 +73,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "funcs.h"
 #include "globals.h"
 
 TreeNode *root = NULL;

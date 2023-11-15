@@ -1,7 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "funcs.h"
-#include "lex.h"
 #include "globals.h"
 
 
@@ -28,6 +26,13 @@ int main(int argc, char *argv[])
 
     Analysis *info = createAnalyser(&lex, buffer, file);
     Analysis *temp = info;
+
+    while (buffer->eof)
+    {
+        temp = analyser(info);
+        print_lexeme(temp->lex);
+        info = temp;
+    }
 
     //free_lexeme(&lex);
     free_buffer(buffer);
