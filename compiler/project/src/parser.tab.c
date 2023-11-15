@@ -1825,7 +1825,8 @@ int yylex()
 
   temp = get_next_token(info);
   token = temp->lex->token;
-
+  temp->lex->name[strlen(temp->lex->name)]='\0';
+  print_lexeme(temp->lex);
   switch (token)
   {
   case T_NUM:

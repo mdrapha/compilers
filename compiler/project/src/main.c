@@ -28,16 +28,17 @@ int main(int argc, char *argv[])
 
     Analysis *info = createGNT(lex, buffer, file);
     Analysis *temp = info;
-    while (!buffer->eof)
-    {
-        temp = get_next_token(info);
-        print_lexeme(temp->lex);
-        // Reset lex for the next iteration
-        resetLexeme(temp->lex);
-        info = temp;
-    }
+    // while (!buffer->eof)
+    // {
+    //     yylex();
+    // }
+
+    printf("parser\n");
+    printf("result: %d\n", yyparse());
+
     free_buffer(buffer);
     fclose(file);
+
     printf("\033[1;32m"); // Set text to the color green
     printf("End of compiling\n\n");
     printf("\033[0m"); // Reset text to default color
