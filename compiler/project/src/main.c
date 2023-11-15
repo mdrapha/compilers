@@ -20,17 +20,15 @@ int main(int argc, char *argv[])
         printf("Error opening file\n");
         exit(1);
     }
-    printf("File opened\n");
+    printf("Lexical Analysis\n");
+
     initGlobals(); // Initialize global variables
-    printf("Globals initialized\n");
     if (lex != NULL)
     {
         lex->name = malloc(sizeof(char) * MAX_LEXEME_SIZE);
     }
-    printf("Lexeme initialized\n");
     Analysis *info = createGNT(lex, buffer, file);
     Analysis *temp = info;
-    printf("Analysis created\n");
     while (!buffer->eof)
     {
         temp = get_next_token(info);
@@ -39,7 +37,6 @@ int main(int argc, char *argv[])
         resetLexeme(temp->lex);
         info = temp;
     }
-    printf("Passed\n");
     // free_lexeme(&lex);
     free_buffer(buffer);
     fclose(file);
