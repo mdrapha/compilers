@@ -586,18 +586,21 @@ void print_lexeme(lexeme *lex)
 Analysis *get_next_token(Analysis *info)
 {
     
-    lex->name = (char *)malloc(MAX_LEXEME_SIZE * sizeof(char));
+     lex->name = (char *)malloc(MAX_LEXEME_SIZE * sizeof(char));
     int state = S0;
     int next_state;
     char c;
+
     if (lex->name == NULL)
     {
         fprintf(stderr, "Error: Memory allocation failed\n");
         exit(1);
     }
+
     // Initialize the lexeme token and line
     lex->token = 0;
     lex->line = currentLine;
+
     // Initialize lexeme name
     c = get_next_char(info->buffer, info->file);
     if (c == ' ' || c == '\n' || c == '\r')
@@ -607,61 +610,81 @@ Analysis *get_next_token(Analysis *info)
             c = get_next_char(info->buffer, info->file);
         } while (c == ' ' || c == '\n' || c == '\r');
     }
+
     next_state = get_next_state(state, char_to_token(c));
     if (next_state == S_ERROR)
     {
         fprintf(stderr, "Error: Unknowed Character '%c' at Line: %d Col: %d\n", c, currentLine, info->buffer->currentPosition);
         exit(1);
     }
+
     while (c != EOF && next_state != S0)
     {
+
         if (next_state == S_ECOMMENT)
         {
             printf("S_ECOMMENT\n");
         }
+
         // Check for buffer overflow
         if (strlen(lex->name) >= MAX_LEXEME_SIZE - 1)
         {
             fprintf(stderr, "Error: Lexeme too long\n");
             exit(1);
         }
+
         lex->name = strconcat(lex->name, &c);
         state = next_state;
+
         c = get_next_char(info->buffer, info->file);
+
         next_state = get_next_state(state, char_to_token(c));
+
         if (next_state == S_ERROR)
         {
             fprintf(stderr, "ErrorA: Unknowed Character '%c' at Line: %d Col: %d\n", c, currentLine, info->buffer->currentPosition);
             exit(1);
         }
+
         if (next_state == S_BCOMMENT)
         {
+
             while (next_state != S0)
             {
                 // lex.name="\0";
                 state = next_state;
                 c = get_next_char(info->buffer, info->file);
                 next_state = get_next_state(state, char_to_token(c));
+
                 if (c == EOF)
                 {
                     fprintf(stderr, "Error: Unclosed Comment\n");
                     exit(1);
                 }
-                
+
             }
-            
+
             c = get_next_char(info->buffer, info->file);
+
             return get_next_token(info);
         }
     }
+
     // lex.name[strlen(lex.name)] = '\0'; // Null-terminate the lexeme
-    
-    /*if (state == S_BCOMMENT)
+
+
+    if (state == S_ERROR)
+    {
+        fprintf(stderr, "Error: Unknowed Character '%s' at Line: %d Col: %d\n", lex->name, currentLine, info->buffer->currentPosition);
+        exit(1);
+    }
+
+    if (state == S_BCOMMENT)
     {
         fprintf(stderr, "Error: Unclosed Comment\n");
         exit(1);
-    }*/
-    
+    }
+
     if (get_progress(state, char_to_token(c)) == 0)
     {
         // printf("unget state:%s char:%c\n", get_state_name(state), c);
@@ -671,11 +694,11 @@ Analysis *get_next_token(Analysis *info)
     // Tenta assim:
     // if(strlen(lex.name) > 0){
 
-
     lex->token = state;
     lex->token = get_token(lex);
     lex->line = currentLine;    
     info->lex = lex;
     cleanString(info->lex->name);
+
     return info;
 }
