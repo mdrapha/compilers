@@ -20,13 +20,12 @@ int main(int argc, char *argv[])
         printf("Error opening file\n");
         exit(1);
     }
-    printf("Lexical Analysis\n");
+    printf("\033[1;32m"); // Set text to the color green
+    printf("Begin C- Compiling\n");
+    printf("\033[0m"); // Reset text to default color
 
     initGlobals(); // Initialize global variables
-    if (lex != NULL)
-    {
-        lex->name = malloc(sizeof(char) * MAX_LEXEME_SIZE);
-    }
+
     Analysis *info = createGNT(lex, buffer, file);
     Analysis *temp = info;
     while (!buffer->eof)
@@ -37,9 +36,10 @@ int main(int argc, char *argv[])
         resetLexeme(temp->lex);
         info = temp;
     }
-    // free_lexeme(&lex);
     free_buffer(buffer);
     fclose(file);
-
+    printf("\033[1;32m"); // Set text to the color green
+    printf("End of compiling\n\n");
+    printf("\033[0m"); // Reset text to default color
     return 0;
 }

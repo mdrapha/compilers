@@ -20,6 +20,10 @@ void initGlobals() {
     lex = malloc(sizeof(lexeme));
     if (lex) {
         initLexeme(lex);
+        if (lex != NULL)
+        {
+            lex->name = malloc(sizeof(char) * MAX_LEXEME_SIZE);
+        }
         printf("Lexeme initialized\n");
     } else {
         printf("Error allocating memory for lexeme\n");

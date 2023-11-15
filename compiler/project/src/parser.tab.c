@@ -1826,21 +1826,25 @@ int yylex()
   temp = get_next_token(info);
   token = temp->lex->token;
 
-  // Configurar yylval com base no token reconhecido
   switch (token)
   {
   case T_NUM:
-    yylval.num = atoi(temp->lex->name); // supondo que T_NUM seja um número inteiro
+    yylval.num = atoi(temp->lex->name);
     break;
-  case T_ID:
-    yylval.string = strdup(temp->lex->name); // você precisará liberar essa memória mais tarde
+  default:
+    yylval.string = strdup(temp->lex->name); 
     break;
-    // Adicionar cases para outros tokens que carregam valores
+    
   }
 
   // Atualizar informações de linha do token, se o Bison precisar delas
   currentTokenLine = temp->lex->line;
+  currentColumn = temp->buffer->currentPosition;
+  currentToken = temp->lex->token;
+  currentTokenLine = temp->lex->line;
+  currentTokenValue = strdup(temp->lex->name);
 
+  resetLexeme(temp->lex);
   info = temp;
 
   return token;
