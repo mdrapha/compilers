@@ -1149,6 +1149,7 @@ yyreduce:
 #line 44 "parser.y"
   {
     (yyval.node) = createNode(nPrograma, (yyvsp[0].node), NULL, NULL, NULL);
+    printf("Programa reconhecido com sucesso!\n");
   }
 #line 1201 "parser.tab.c"
   break;
