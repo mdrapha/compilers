@@ -1144,6 +1144,7 @@ yyreduce:
   yyval = yyvsp[1 - yylen];
 
   YY_REDUCE_PRINT(yyn);
+  printf("Reduzindo: %d\n", yyn);
   switch (yyn)
   {
   case 2: /* programa: declaracao_lista  */
@@ -1583,6 +1584,7 @@ yyreduce:
   case 56: /* fator: T_NUM  */
 #line 243 "parser.y"
   {
+    printf("NUM: %d\n", (yyvsp[0].num));
     (yyval.node) = createNode(nFator, NULL, NULL, NULL, strdup((yyvsp[0].string)));
   }
 #line 1601 "parser.tab.c"
