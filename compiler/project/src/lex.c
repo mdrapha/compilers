@@ -1,4 +1,4 @@
-#include "funcs.h"
+#include "globals.h"
 int transition_table[28][22] = {
     {S_ID, S_NUM, S_PLUS, S_MINUS, S_MULT, S_DIV, S_LT, S_GT, S_ATRB, S_SEMI, S_COMMA, S_LPAREN, S_RPAREN, S_LBRACE, S_RBRACE, S_LSQBRA, S_RSQBRA, S_EXCLAMATION, S_SPACE, S_ENTER, S_EOF, S_ERROR},
     {S_ID, S0, S0, S0, S0, S0, S0, S0, S0, S0, S0, S0, S0, S0, S0, S0, S0, S0, S0, S0, S_EOF, S_ERROR},

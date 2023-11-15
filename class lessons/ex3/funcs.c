@@ -73,14 +73,14 @@ int fill_buffer(Buffer *buffer, FILE *file, Lexeme data)
                     j=0;
                     strcpy(data.lexeme, lexeme);
                     data.lin = linha;
-                    analyser(data);
+                    get_next_token(data);
                     //Limpa o lexema
                     memset(lexeme, 0, sizeof(lexeme));
                 }else if(character == '\n' && strlen(lexeme) > 0){
                     j=0;
                     strcpy(data.lexeme, lexeme);
                     data.lin = linha;
-                    //analyser(data);
+                    //get_next_token(data);
                     //Limpa o lexema
                     memset(lexeme, 0, sizeof(lexeme));
                 }
@@ -89,7 +89,7 @@ int fill_buffer(Buffer *buffer, FILE *file, Lexeme data)
                     strcpy(data.lexeme, lexeme);
                     data.lin = linha;
                     if(lexeme)
-                    analyser(data);
+                    get_next_token(data);
                     //Limpa o lexema
                     memset(lexeme, 0, sizeof(lexeme));
                 }
@@ -107,7 +107,7 @@ int fill_buffer(Buffer *buffer, FILE *file, Lexeme data)
 }
 
 
-void analyser(Lexeme data)
+void get_next_token(Lexeme data)
 {
     if (strcmp(data.lexeme, "if") == 0)
     {

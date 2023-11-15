@@ -16,7 +16,7 @@ typedef struct lexeme {
     int line;
 }Lexemes;
 
-void analyser(Lexemes lexeme, char* word, int token_type, int line);
+void get_next_token(Lexemes lexeme, char* word, int token_type, int line);
 void print_lexeme(Lexemes lexeme);
 void initLexeme(Lexemes lexeme);
 void free_lexeme(Lexemes lexeme);

@@ -1,6 +1,6 @@
 #include "funcs.h"
 
-void analyser(Lexemes lexeme, char* word, int token_type, int line) {
+void get_next_token(Lexemes lexeme, char* word, int token_type, int line) {
     lexeme.lex = (char *)malloc(sizeof(char) * MAX_S);
     strcpy(lexeme.lex, word);
     lexeme.type = token_type;

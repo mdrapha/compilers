@@ -40,4 +40,4 @@ typedef struct lexeme
 Buffer *allocate_buffer();
 void deallocate_buffer(Buffer *buffer);
 int fill_buffer(Buffer *buffer, FILE *file, Lexeme data);
-void analyser(Lexeme data);
+void get_next_token(Lexeme data);

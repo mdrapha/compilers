@@ -170,10 +170,10 @@ void yyerror(char *s){
 
 int yylex(){
     int token;
-    Analysis *info = createAnalyser(&lex, buffer, file);
+    Analysis *info = createGNT(&lex, buffer, file);
     Analysis *temp = info;
 
-        temp = analyser(info);
+        temp = get_next_token(info);
         token= *temp->lex->token;
         strcpy(lexema,*temp->lex->name);
         actualLine=*temp->lex->line;

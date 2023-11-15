@@ -163,7 +163,7 @@ void print_error(struct Buffer *buffer, char *message) {
 }
 
 
-struct lexeme analyser(struct Buffer *buffer, FILE *file)
+struct lexeme get_next_token(struct Buffer *buffer, FILE *file)
 {
     struct lexeme lex;
     initLexeme(&lex);

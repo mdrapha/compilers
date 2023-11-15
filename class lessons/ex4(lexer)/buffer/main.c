@@ -23,7 +23,7 @@ int main(int argc, char *argv[]) {
     initBuffer(&buffer);
 
     while (!buffer.eof) {
-        lex = analyser(&buffer, file);
+        lex = get_next_token(&buffer, file);
         print_lexeme(&lex);
     }
 

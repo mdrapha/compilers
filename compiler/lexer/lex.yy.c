@@ -754,17 +754,17 @@ case 1:
 /* rule 1 can match eol */
 YY_RULE_SETUP
 #line 37 "lexer.l"
-{current_line++;  analyser(lex, yytext, ENTER, current_line); continue;}
+{current_line++;  get_next_token(lex, yytext, ENTER, current_line); continue;}
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
 #line 38 "lexer.l"
-{analyser(lex ,yytext, NUM, current_line);}
+{get_next_token(lex ,yytext, NUM, current_line);}
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
 #line 39 "lexer.l"
-{analyser(lex, yytext, ID, current_line);}
+{get_next_token(lex, yytext, ID, current_line);}
 	YY_BREAK
 case YY_STATE_EOF(INITIAL):
 #line 40 "lexer.l"
@@ -779,102 +779,102 @@ YY_RULE_SETUP
 case 5:
 YY_RULE_SETUP
 #line 42 "lexer.l"
-{analyser(lex, yytext, RPAREN, current_line);}
+{get_next_token(lex, yytext, RPAREN, current_line);}
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
 #line 43 "lexer.l"
-{analyser(lex, yytext, LPAREN, current_line);}
+{get_next_token(lex, yytext, LPAREN, current_line);}
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
 #line 44 "lexer.l"
-{analyser(lex, yytext, LBRACE, current_line);}
+{get_next_token(lex, yytext, LBRACE, current_line);}
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
 #line 45 "lexer.l"
-{analyser(lex, yytext, RBRACE, current_line);}
+{get_next_token(lex, yytext, RBRACE, current_line);}
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
 #line 46 "lexer.l"
-{analyser(lex, yytext, LBRACK, current_line);}
+{get_next_token(lex, yytext, LBRACK, current_line);}
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
 #line 47 "lexer.l"
-{analyser(lex, yytext, OPERATOR, current_line);}
+{get_next_token(lex, yytext, OPERATOR, current_line);}
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
 #line 48 "lexer.l"
-{analyser(lex, yytext, SPACE, current_line);}
+{get_next_token(lex, yytext, SPACE, current_line);}
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
 #line 49 "lexer.l"
-{analyser(lex, yytext, HASHTAG, current_line);}
+{get_next_token(lex, yytext, HASHTAG, current_line);}
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
 #line 50 "lexer.l"
-{analyser(lex, yytext, RBRACK, current_line);}
+{get_next_token(lex, yytext, RBRACK, current_line);}
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
 #line 51 "lexer.l"
-{analyser(lex, yytext, SEMI, current_line);}
+{get_next_token(lex, yytext, SEMI, current_line);}
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
 #line 52 "lexer.l"
-{analyser(lex, yytext, ATRB, current_line);}
+{get_next_token(lex, yytext, ATRB, current_line);}
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
 #line 53 "lexer.l"
-{analyser(lex, yytext, COMMA, current_line);}
+{get_next_token(lex, yytext, COMMA, current_line);}
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
 #line 54 "lexer.l"
-{analyser(lex, yytext, DOT, current_line);}
+{get_next_token(lex, yytext, DOT, current_line);}
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
 #line 55 "lexer.l"
-{analyser(lex, yytext, LT, current_line);}
+{get_next_token(lex, yytext, LT, current_line);}
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
 #line 56 "lexer.l"
-{analyser(lex, yytext, LTE, current_line);}
+{get_next_token(lex, yytext, LTE, current_line);}
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
 #line 57 "lexer.l"
-{analyser(lex, yytext, GT, current_line);}
+{get_next_token(lex, yytext, GT, current_line);}
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
 #line 58 "lexer.l"
-{analyser(lex, yytext, GTE, current_line);}
+{get_next_token(lex, yytext, GTE, current_line);}
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
 #line 59 "lexer.l"
-{analyser(lex, yytext, QUOTE, current_line);}
+{get_next_token(lex, yytext, QUOTE, current_line);}
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
 #line 60 "lexer.l"
-{analyser(lex, yytext, EQ, current_line);}
+{get_next_token(lex, yytext, EQ, current_line);}
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
 #line 61 "lexer.l"
-{analyser(lex, yytext, NEQ, current_line);}
+{get_next_token(lex, yytext, NEQ, current_line);}
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
