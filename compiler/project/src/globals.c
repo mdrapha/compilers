@@ -31,16 +31,18 @@ void initGlobals() {
     }
 
     // Initialize symbol table and other variables
-    //symbolTable = NULL; // Assuming it will be initialized later if needed
     currentLine = 1;
     currentColumn = 0;
     currentToken = 0;
     currentTokenValue = NULL; // Will be allocated later when needed
     currentTokenType = 0;
     currentTokenLine = 0;
+    currentScope = 'global'; // Assuming it will be initialized later if needed
 }
 
 SymbolTable *symbolTable;
+
+const char *file_name;
 
 /*Variable to manage the current line*/
 int currentLine =1;
@@ -59,3 +61,6 @@ int currentTokenType;
 
 /*Variable to manage the current token line*/
 int currentTokenLine;
+
+/* Variable to manage the current scope*/
+char *currentScope;

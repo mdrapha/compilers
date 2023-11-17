@@ -100,6 +100,9 @@ void addNode(TreeNode **destination, TreeNode *newNode, int childIndex);
 void freeTree(TreeNode *node);
 
 //Function to print the tree
+void printTree(TreeNode *node, int level, bool isLast);
+
+//Function to print the tree
 void printLexeme(TreeNode *node);
 
 //Function to get the node type name

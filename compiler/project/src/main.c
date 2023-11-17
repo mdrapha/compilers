@@ -5,7 +5,7 @@
 
 int main(int argc, char *argv[])
 {
-    const char *file_name = argv[1];
+    file_name = argv[1];
 
     if (argc != 2)
     {
@@ -26,7 +26,6 @@ int main(int argc, char *argv[])
     initGlobals(); // Initialize global variables
 
     Analysis *info = createGNT(lex, buffer, file);
-    Analysis *temp = info;
 
     printf("parser\n");
     printf("result: %d\n", yyparse());

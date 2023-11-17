@@ -38,23 +38,7 @@ typedef struct Analysis
     char lastChar;
 } Analysis;
 
-/*Structure for the symbol table*/
-typedef struct SymbolTable
-{
-    char *name;
-    int type;
-    int lineDeclared;
-    int *linesUsed;
-    int scope;
-    int size;
-    int offset;
-    int isFunction;
-    int numParams;
-    int *params;
-    int returnType;
-    struct SymbolTable *next;
 
-} SymbolTable;
 
 Analysis *createGNT(lexeme *lex, Buffer *buffer, FILE *file); /*Function to analyse lexemes*/
 void fill_buffer(Buffer *buffer, FILE *file);                 /*Function to free the buffer*/

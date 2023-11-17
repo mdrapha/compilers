@@ -5,8 +5,8 @@
 
 #include "globals.h"
 
-TreeNode *parseTree = NULL;
-
+*parseTree = NULL;
+int scopeCounter = 0; // Counter for the current scope
 void yyerror(char *s);
 
 extern int yylex();
@@ -43,6 +43,7 @@ extern int yylex();
 programa
     : declaracao_lista {
         parseTree = $1;
+        symbolTable = createSymbolTable();
     }
     ;
 
@@ -73,29 +74,34 @@ declaracao
 var_declaracao
     : tipo_especificador T_ID T_SEMI {
         $$ = $1;
-        $$->type = T_ID; // Set the type to variable identifier
-        $$->nodeType = nVarDeclaracao; // Set the node type to variable declaration
+        $$->type = T_ID; // Defining the type as an identifier
+        $$->nodeType = nVarDeclaracao; // Defining the node type as a variable declaration
         $$->lineNumber = currentTokenLine;
 
         TreeNode *aux = newNode();
         strcpy(aux->lexeme, currentTokenValue);
-        addNode(&$$, aux, 0); // Add aux as the first child
+        addNode(&$$, aux, 0); // Adiciona aux como o primeiro filho
 
-        
+        // Adiciona a variável à tabela de símbolos
+        addSymbol(symbolTable, aux->lexeme, $$->type, aux->lineNumber, currentScope, 0); 
     }
     | tipo_especificador T_ID T_LSQBRA T_NUM T_RSQBRA T_SEMI {
         $$ = $1;
-        $$->type = T_ID; // Assuming T_ID represents an array declaration
+        $$->type = T_ID; // Assume que T_ID representa uma declaração de vetor
         $$->lineNumber = currentTokenLine;
 
         TreeNode *aux = newNode();
-        strcpy(aux->lexeme, currentTokenValue); // Assuming this holds the variable name
-        addNode(&$$, aux, 0); // Add aux as the first child
+        strcpy(aux->lexeme, currentTokenValue); // Assume que armazena o nome da variável
+        addNode(&$$, aux, 0); // Adiciona aux como o primeiro filho
 
         TreeNode *aux2 = newNode();
-        strcpy(aux2->lexeme, currentTokenValue); // Assuming this holds the array size
-        addNode(&$$, aux2, 1); // Add aux2 as the second child
+        aux2->type = T_NUM;
+        strcpy(aux2->lexeme, yylval.string); // Assume que armazena o tamanho do vetor
+        aux2->lineNumber = currentTokenLine;
+        addNode(&$$, aux2, 1); // Adiciona aux2 como o segundo filho
 
+        // Adiciona o vetor à tabela de símbolos
+        addSymbol(symbolTable, aux->lexeme, $$->type, aux->lineNumber, currentScope, atoi(aux2->lexeme));
     }
 
 tipo_especificador
@@ -116,34 +122,41 @@ tipo_especificador
 
 fun_declaracao
     : tipo_especificador fun_id T_LPAREN params T_RPAREN composto_decl {
-        $$ = $1; // The type specifier becomes the root node for the function declaration
+        char *previousScope = strdup(currentScope); // Salva o escopo atual
+        currentScope = strdup($2->lexeme); // Entra no escopo da função
+
+        $$ = $1; // O especificador de tipo torna-se o nó raiz para a declaração da função
         
-        addNode(&$$, $2, 0); // Add function identifier as the first child
-        addNode(&$$, $4, 1); // Add parameters as the second child
-        addNode(&$2, $6, 0); // Add compound declaration as a child of the function identifier
+        addNode(&$$, $2, 0); // Adiciona identificador da função como o primeiro filho
+        addNode(&$$, $4, 1); // Adiciona parâmetros como o segundo filho
+        addNode(&$2, $6, 0); // Adiciona declaração composta como filho do identificador da função
 
-        $$->type = T_FUN; // Assuming T_FUN is the token type for function declarations
-        $$->lineNumber = currentTokenLine; // Set the line number
-        $$->nodeType = nFunDeclaracao; // Set the node type to function declaration
+        $$->type = T_FUN; // Assume que T_FUN é o tipo de token para declarações de função
+        $$->lineNumber = currentTokenLine; // Define o número da linha
+        $$->nodeType = nFunDeclaracao; // Define o tipo do nó como declaração de função
 
+        // Adiciona a função à tabela de símbolos (implemente getParamTypes para obter tipos de parâmetros)
+        addFunctionSymbol(symbolTable, $2->lexeme, $1->type, $2->lineNumber, getParamTypes($4), $4->nParams);
+
+        free(currentScope); // Libera o escopo da função
+        currentScope = previousScope; // Restaura o escopo anterior
     }
     ;
 
 fun_id
     : T_ID {
         $$ = newNode();
-        $$->type = T_ID; // Assuming T_ID is the token type for identifiers
-        strncpy($$->lexeme, currentTokenValue, MAX_LEXEME_SIZE - 1); // Copying the identifier's lexeme
-        $$->lexeme[MAX_LEXEME_SIZE - 1] = '\0'; // Ensure null termination
+        $$->type = T_ID; // Assume que T_ID é o tipo de token para identificadores
+        strncpy($$->lexeme, currentTokenValue); // Copia o lexema do identificador
+        $$->lexeme[MAX_LEXEME_SIZE - 1] = '\0'; // Garante terminação nula
         $$->lineNumber = currentTokenLine;
-
     }
     ;
 
 
 params
     : param_lista {
-        $$ = $1; // Use the parameter list node directly
+        $$ = $1; // Directly use the parameter list node
         $$->nodeType = nParams;
     }
     | T_VOID {
@@ -153,7 +166,6 @@ params
         $$->lexeme[MAX_LEXEME_SIZE - 1] = '\0'; // Ensure null termination
         $$->lineNumber = currentTokenLine;
         $$->nodeType = nParams;
-
     }
     ;
 
@@ -168,10 +180,9 @@ param_lista
         }
     }
     | param {
-        $$ = $1; // For a single parameter, just will use the parameter node
+        $$ = $1; // For a single parameter, just use the parameter node
     }
     ;
-
 
 
 param
@@ -181,14 +192,13 @@ param
         $$->lineNumber = currentTokenLine;
 
         TreeNode *aux = newNode();
-        strncpy(aux->lexeme, currentTokenValue, MAX_LEXEME_SIZE - 1);
-        aux->lexeme[MAX_LEXEME_SIZE - 1] = '\0';
+        strncpy(aux->lexeme, currentTokenValue, MAX_LEXEME_SIZE - 1); // Copy the identifier's lexeme
+        aux->lexeme[MAX_LEXEME_SIZE - 1] = '\0'; // Ensure null termination
         aux->lineNumber = currentTokenLine;
         aux->type = T_ID; // Set type for the identifier
 
         addNode(&$$, aux, 0); // Add aux as the first child
-
-
+        addSymbol(symbolTable, aux->lexeme, $$->type, aux->lineNumber, currentScope, 0); // Add parameter symbol to symbol table
     }
 
     | tipo_especificador T_ID T_LSQBRA T_RSQBRA {
@@ -197,18 +207,21 @@ param
         $$->lineNumber = currentTokenLine;
 
         TreeNode *aux = newNode();
-        strncpy(aux->lexeme, currentTokenValue, MAX_LEXEME_SIZE - 1);
-        aux->lexeme[MAX_LEXEME_SIZE - 1] = '\0';
+        strncpy(aux->lexeme, currentTokenValue, MAX_LEXEME_SIZE - 1); // Copy the array identifier's lexeme
+        aux->lexeme[MAX_LEXEME_SIZE - 1] = '\0'; // Ensure null termination
         aux->lineNumber = currentTokenLine;
         aux->type = T_ID; // Set type for the array identifier
 
         addNode(&$$, aux, 0); // Add aux as the first child
-
+        addSymbol(symbolTable, aux->lexeme, $$->type, aux->lineNumber, currentScope, 0); // Add array parameter symbol to symbol table
     }
+
 
 
 composto_decl
     : T_LBRACE local_declaracoes statement_lista T_RBRACE {
+        char* previousScope = currentScope; // Save the current scope
+        currentScope = generateNewScopeName(); // Generate a new scope name
         $$ = newNode(); // Create a new node for the compound declaration
         $$->type = T_LBRACE; // Assuming T_LBRACE represents a compound declaration
         $$->lineNumber = currentTokenLine; // Set the line number
@@ -220,6 +233,8 @@ composto_decl
         if ($3 != NULL) {
             addNode(&$$, $3, 1); // Add statement list as the second child
         }
+        exitScope(); // Exit the compound declaration's scope
+        currentScope = previousScope; // Restore the previous scope
     }
     ;
 
@@ -233,7 +248,7 @@ local_declaracoes
         }
     }
     | /* empty */ {
-        $$ = NULL; // For an empty production, set $$ to
+        $$ = NULL; // For an empty production, set $$ to NULL
     }
     ;
 
@@ -253,7 +268,6 @@ statement_lista
     ;
 
 
-
 statement
     : expressao_decl {
         $$ = $1;
@@ -271,6 +285,7 @@ statement
         $$ = $1;
     }
     ;
+
 
 expressao_decl
     : expressao T_SEMI {
@@ -323,6 +338,7 @@ iteracao_decl
     ;
 
 
+
 retorno_decl
     : T_RETURN T_SEMI {
         $$ = newNode();
@@ -370,23 +386,24 @@ var
     : T_ID {
         $$ = newNode();
         $$->type = T_ID; // Assuming T_ID is the token type for identifiers
-        strncpy($$->lexeme, currentTokenValue, MAX_LEXEME_SIZE - 1); // Copy the identifier's lexeme
-        $$->lexeme[MAX_LEXEME_SIZE - 1] = '\0'; // Ensure null termination
+        strncpy($$->lexeme, currentTokenValue, MAX_LEXEME SIZE - 1); // Copy the identifier's lexeme
+        $$->lexeme[MAX_LEXEME SIZE - 1] = '\0'; // Ensure null termination
         $$->lineNumber = currentTokenLine;
-        $$->nodeType = nVar; 
+        $$->nodeType = nVar;
     }
 
     | T_ID T_LSQBRA expressao T_RSQBRA {
         $$ = newNode();
         $$->type = T_ID; // Assuming T_ID is used for array identifiers as well
-        strncpy($$->lexeme, currentTokenValue, MAX_LEXEME_SIZE - 1); // Copy the identifier's lexeme
-        $$->lexeme[MAX_LEXEME_SIZE - 1] = '\0'; // Ensure null termination
+        strncpy($$->lexeme, currentTokenValue, MAX_LEXEME SIZE - 1); // Copy the identifier's lexeme
+        $$->lexeme[MAX_LEXEME SIZE - 1] = '\0'; // Ensure null termination
         $$->lineNumber = currentTokenLine;
         $$->nodeType = nVar; 
 
         addNode(&$$, $3, 0); // Add the index expression as the first child
 
     }
+
 
 
 simples_expressao
@@ -555,29 +572,156 @@ arg_lista
 
 %%
 void yyerror(char *s){
-    fprintf(stderr, "Error: Semantical Problem on '%s' at line %d\n", s, currentTokenLine);
+    fprintf(stderr, "Error: Syntax Problem at line %d\n", currentTokenLine);
+    printf("token: %d\n", currentToken);
+    switch (currentToken)
+    {
+    case T_ID:
+        fprintf(stderr, "Unexpected ID %s\n", s);
+        break;
+
+    case T_NUM:
+        fprintf(stderr, "Unexpected NUM %s\n", s);
+        break;
+
+    case T_PLUS:
+        fprintf(stderr, "Unexpected '+'\n");
+        break;
+
+    case T_MINUS:
+        fprintf(stderr, "Unexpected '-'\n");
+        break;
+
+    case T_MULT:
+        fprintf(stderr, "Unexpected '*'\n");
+        break;
+
+    case T_DIV:
+        fprintf(stderr, "Unexpected '/'\n");
+        break;
+
+    case T_IF:
+        fprintf(stderr, "Unexpected 'if'\n");
+        break;
+
+    case T_ELSE:
+        fprintf(stderr, "Unexpected 'else'\n");
+        break;
+    
+    case T_WHILE:
+        fprintf(stderr, "Unexpected 'while'\n");
+        break;
+
+    case T_RETURN:
+        fprintf(stderr, "Unexpected 'return'\n");
+        break;
+
+    case T_LT:
+        fprintf(stderr, "Unexpected '<'\n");
+        break;
+
+    case T_LTE:
+        fprintf(stderr, "Unexpected '<='\n");
+        break;
+
+    case T_GT:
+        fprintf(stderr, "Unexpected '>'\n");
+        break;
+
+    case T_GTE:
+        fprintf(stderr, "Unexpected '>='\n");
+        break;
+
+    case T_EQ:
+        fprintf(stderr, "Unexpected '=='\n");
+        break;
+
+    case T_NEQ: 
+        fprintf(stderr, "Unexpected '!='\n");
+        break;
+
+    case T_ATRB:
+        fprintf(stderr, "Unexpected '='\n");
+        break;
+
+    case T_LPAREN:
+        fprintf(stderr, "Unexpected '('\n");
+        break;
+
+    case T_RPAREN:
+        fprintf(stderr, "Unexpected ')'\n");
+        break;
+
+    case T_LBRACE:
+        fprintf(stderr, "Unexpected '{'\n");
+        break;
+
+    case T_RBRACE:  
+        fprintf(stderr, "Unexpected '}'\n");
+        break;
+
+    case T_LSQBRA:
+        fprintf(stderr, "Unexpected '['\n");
+        break;
+
+    case T_RSQBRA:
+        fprintf(stderr, "Unexpected ']'\n");
+        break;
+
+    case T_SEMI:
+        fprintf(stderr, "Unexpected ';'\n");
+        break;
+
+    case T_COMMA:
+        fprintf(stderr, "Unexpected ','\n");
+        break;
+
+    case T_VOID:
+        fprintf(stderr, "Unexpected 'void'\n");
+        break;
+
+    case T_INT:
+        fprintf(stderr, "Unexpected 'int'\n");
+        break;
+
+    case T_EOF:
+        fprintf(stderr, "Unexpected end\n");
+        break;
+
+    
+
+    default:
+        fprintf(stderr, "Unexpected token %s\n", s);
+      break;
+    }
 }
 
-int yylex(){
+int yylex() {
     int token;
     Analysis *info = createGNT(&lex, buffer, file);
     Analysis *temp = info;
 
     temp = get_next_token(info);
     token = temp->lex->token;
-    
-    // Config the yylval union
-    switch(token) {
+
+    // Configuração do yylval union
+    switch (token) {
         case T_NUM:
-            yylval.num = atoi(temp->lex->name); // If the token is a number, convert it to an integer
+            yylval.num = atoi(temp->lex->name); // Se o token for um número, converte para inteiro
+            break;
         case T_ID:
-            yylval.string = strdup(temp->lex->name); // If the token is an identifier, copy its lexeme
+            yylval.string = strdup(temp->lex->name); // Se o token for um identificador, copia seu lexema
+            break;
     }
 
     currentTokenLine = temp->lex->line;
     currentTokenValue = temp->lex->name;
     currentToken = temp->lex->token;
     info = temp;
+    if(token==T_EOF) {
+        free(info);
+        return 0;
+    }
 
     return token;
 }

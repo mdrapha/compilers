@@ -75,6 +75,7 @@
 
 #include "globals.h"
 
+int scopeCounter = 0; // Counter for the current scope
 void yyerror(char *s);
 
 extern int yylex();
@@ -555,13 +556,13 @@ static const yytype_int8 yytranslate[] =
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int16 yyrline[] =
 {
-       0,    44,    44,    50,    59,    65,    68,    74,    86,   102,
-     109,   118,   133,   145,   149,   162,   170,   178,   194,   211,
-     227,   235,   242,   250,   258,   261,   264,   267,   270,   276,
-     280,   287,   297,   312,   327,   337,   351,   363,   370,   379,
-     393,   399,   406,   413,   419,   425,   431,   437,   447,   456,
-     465,   472,   479,   486,   492,   499,   502,   505,   515,   528,
-     532,   538,   547
+       0,    44,    44,    51,    60,    66,    69,    75,    88,   108,
+     115,   124,   147,   158,   162,   174,   182,   189,   204,   222,
+     242,   250,   257,   265,   272,   275,   278,   281,   284,   291,
+     295,   302,   312,   327,   343,   353,   367,   379,   386,   395,
+     410,   416,   423,   430,   436,   442,   448,   454,   464,   473,
+     482,   489,   496,   503,   509,   516,   519,   522,   532,   545,
+     549,   555,   564
 };
 #endif
 
@@ -1196,11 +1197,11 @@ yyreduce:
                        {
         parseTree = (yyvsp[0].node);
     }
-#line 1202 "parser.tab.c"
+#line 1203 "parser.tab.c"
     break;
 
   case 3: /* declaracao_lista: declaracao_lista declaracao  */
-#line 50 "parser.y"
+#line 51 "parser.y"
                                   {
         if ((yyvsp[-1].node) != NULL) {
             addNode(&(yyvsp[-1].node), (yyvsp[0].node), -1); // Add as sibling            
@@ -1210,71 +1211,74 @@ yyreduce:
             (yyval.node) = (yyvsp[0].node);
         }
     }
-#line 1216 "parser.tab.c"
+#line 1217 "parser.tab.c"
     break;
 
   case 4: /* declaracao_lista: declaracao  */
-#line 59 "parser.y"
+#line 60 "parser.y"
                  {
         (yyval.node) = (yyvsp[0].node);
     }
-#line 1224 "parser.tab.c"
+#line 1225 "parser.tab.c"
     break;
 
   case 5: /* declaracao: var_declaracao  */
-#line 65 "parser.y"
+#line 66 "parser.y"
                      {
         (yyval.node) = (yyvsp[0].node);
     }
-#line 1232 "parser.tab.c"
+#line 1233 "parser.tab.c"
     break;
 
   case 6: /* declaracao: fun_declaracao  */
-#line 68 "parser.y"
+#line 69 "parser.y"
                      {
         (yyval.node) = (yyvsp[0].node);
     }
-#line 1240 "parser.tab.c"
+#line 1241 "parser.tab.c"
     break;
 
   case 7: /* var_declaracao: tipo_especificador T_ID T_SEMI  */
-#line 74 "parser.y"
+#line 75 "parser.y"
                                      {
         (yyval.node) = (yyvsp[-2].node);
-        (yyval.node)->type = T_ID; // Set the type to variable identifier
-        (yyval.node)->nodeType = nVarDeclaracao; // Set the node type to variable declaration
+        (yyval.node)->type = T_ID; // Defining the type as an identifier
+        (yyval.node)->nodeType = nVarDeclaracao; // Defining the node type as a variable declaration
         (yyval.node)->lineNumber = currentTokenLine;
 
         TreeNode *aux = newNode();
         strcpy(aux->lexeme, currentTokenValue);
-        addNode(&(yyval.node), aux, 0); // Add aux as the first child
+        addNode(&(yyval.node), aux, 0); // Adiciona aux como o primeiro filho
 
-        
+
     }
-#line 1257 "parser.tab.c"
+#line 1259 "parser.tab.c"
     break;
 
   case 8: /* var_declaracao: tipo_especificador T_ID T_LSQBRA T_NUM T_RSQBRA T_SEMI  */
-#line 86 "parser.y"
+#line 88 "parser.y"
                                                              {
         (yyval.node) = (yyvsp[-5].node);
-        (yyval.node)->type = T_ID; // Assuming T_ID represents an array declaration
+        (yyval.node)->type = T_ID; // Assume que T_ID representa uma declaração de vetor
         (yyval.node)->lineNumber = currentTokenLine;
 
         TreeNode *aux = newNode();
-        strcpy(aux->lexeme, currentTokenValue); // Assuming this holds the variable name
-        addNode(&(yyval.node), aux, 0); // Add aux as the first child
+        strcpy(aux->lexeme, currentTokenValue); // Assume que armazena o nome da variável
+        addNode(&(yyval.node), aux, 0); // Adiciona aux como o primeiro filho
 
         TreeNode *aux2 = newNode();
-        strcpy(aux2->lexeme, currentTokenValue); // Assuming this holds the array size
-        addNode(&(yyval.node), aux2, 1); // Add aux2 as the second child
+        aux2->type = T_NUM;
+        strcpy(aux2->lexeme, yylval.string); // Assume que armazena o tamanho do vetor
+        aux2->lineNumber = currentTokenLine;
+        addNode(&(yyval.node), aux2, 1); // Adiciona aux2 como o segundo filho
+
 
     }
-#line 1276 "parser.tab.c"
+#line 1282 "parser.tab.c"
     break;
 
   case 9: /* tipo_especificador: T_INT  */
-#line 102 "parser.y"
+#line 108 "parser.y"
             {
         (yyval.node) = newNode();
         (yyval.node)->type = T_INT; // Assuming T_INT is the token type for "int"
@@ -1282,61 +1286,59 @@ yyreduce:
         (yyval.node)->lineNumber = currentTokenLine;
 
     }
-#line 1288 "parser.tab.c"
+#line 1294 "parser.tab.c"
     break;
 
   case 10: /* tipo_especificador: T_VOID  */
-#line 109 "parser.y"
+#line 115 "parser.y"
              {
         (yyval.node) = newNode();
         (yyval.node)->type = T_VOID; // Assuming T_VOID is the token type for "void"
         strcpy((yyval.node)->lexeme, "void");
         (yyval.node)->lineNumber = currentTokenLine;
     }
-#line 1299 "parser.tab.c"
+#line 1305 "parser.tab.c"
     break;
 
   case 11: /* fun_declaracao: tipo_especificador fun_id T_LPAREN params T_RPAREN composto_decl  */
-#line 118 "parser.y"
-                                                                       {
-        (yyval.node) = (yyvsp[-5].node); // The type specifier becomes the root node for the function declaration
+#line 124 "parser.y"
+        {
+        (yyval.node) = (yyvsp[-5].node); // O especificador de tipo torna-se o nó raiz para a declaração da função
         
-        addNode(&(yyval.node), (yyvsp[-4].node), 0); // Add function identifier as the first child
-        addNode(&(yyval.node), (yyvsp[-2].node), 1); // Add parameters as the second child
-        addNode(&(yyvsp[-4].node), (yyvsp[0].node), 0); // Add compound declaration as a child of the function identifier
+        addNode(&(yyval.node), (yyvsp[-4].node), 0); // Adiciona identificador da função como o primeiro filho
+        addNode(&(yyval.node), (yyvsp[-2].node), 1); // Adiciona parâmetros como o segundo filho
+        addNode(&(yyvsp[-4].node), (yyvsp[0].node), 0); // Adiciona declaração composta como filho do identificador da função
 
-        (yyval.node)->type = T_LPAREN;
-        (yyval.node)->lineNumber = currentTokenLine; // Set the line number
-        (yyval.node)->nodeType = nFunDeclaracao; // Set the node type to function declaration
-
+        (yyval.node)->type = currentTokenType; // Assume que T_FUN é o tipo de token para declarações de função
+        (yyval.node)->lineNumber = currentTokenLine; // Define o número da linha
+        (yyval.node)->nodeType = nFunDeclaracao; // Define o tipo do nó como declaração de função
     }
-#line 1316 "parser.tab.c"
+#line 1330 "parser.tab.c"
     break;
 
   case 12: /* fun_id: T_ID  */
-#line 133 "parser.y"
+#line 147 "parser.y"
            {
         (yyval.node) = newNode();
-        (yyval.node)->type = T_ID; // Assuming T_ID is the token type for identifiers
-        strncpy((yyval.node)->lexeme, currentTokenValue, MAX_LEXEME_SIZE - 1); // Copying the identifier's lexeme
-        (yyval.node)->lexeme[MAX_LEXEME_SIZE - 1] = '\0'; // Ensure null termination
+        (yyval.node)->type = T_ID; // Assume que T_ID é o tipo de token para identificadores
+        strcpy((yyval.node)->lexeme, currentTokenValue); // Copia o lexema do identificador
+        (yyval.node)->lexeme[MAX_LEXEME_SIZE - 1] = '\0'; // Garante terminação nula
         (yyval.node)->lineNumber = currentTokenLine;
-
     }
-#line 1329 "parser.tab.c"
+#line 1342 "parser.tab.c"
     break;
 
   case 13: /* params: param_lista  */
-#line 145 "parser.y"
+#line 158 "parser.y"
                   {
-        (yyval.node) = (yyvsp[0].node); // Use the parameter list node directly
+        (yyval.node) = (yyvsp[0].node); // Directly use the parameter list node
         (yyval.node)->nodeType = nParams;
     }
-#line 1338 "parser.tab.c"
+#line 1351 "parser.tab.c"
     break;
 
   case 14: /* params: T_VOID  */
-#line 149 "parser.y"
+#line 162 "parser.y"
              {
         (yyval.node) = newNode();
         (yyval.node)->type = T_VOID; // Assuming T_VOID is the token type for "void"
@@ -1344,13 +1346,12 @@ yyreduce:
         (yyval.node)->lexeme[MAX_LEXEME_SIZE - 1] = '\0'; // Ensure null termination
         (yyval.node)->lineNumber = currentTokenLine;
         (yyval.node)->nodeType = nParams;
-
     }
-#line 1352 "parser.tab.c"
+#line 1364 "parser.tab.c"
     break;
 
   case 15: /* param_lista: param_lista T_COMMA param  */
-#line 162 "parser.y"
+#line 174 "parser.y"
                                 {
         if ((yyvsp[-2].node) != NULL) {
             addNode(&(yyvsp[-2].node), (yyvsp[0].node), -1); // Add $3 as a sibling to $1
@@ -1359,58 +1360,55 @@ yyreduce:
             (yyval.node) = (yyvsp[0].node); // If $1 is NULL, use $3 as the start of the list
         }
     }
-#line 1365 "parser.tab.c"
+#line 1377 "parser.tab.c"
     break;
 
   case 16: /* param_lista: param  */
-#line 170 "parser.y"
+#line 182 "parser.y"
             {
-        (yyval.node) = (yyvsp[0].node); // For a single parameter, just will use the parameter node
+        (yyval.node) = (yyvsp[0].node); // For a single parameter, just use the parameter node
     }
-#line 1373 "parser.tab.c"
+#line 1385 "parser.tab.c"
     break;
 
   case 17: /* param: tipo_especificador T_ID  */
-#line 178 "parser.y"
+#line 189 "parser.y"
                               {
         (yyval.node) = newNode();
         (yyval.node)->type = T_ID; // Defining the type as an identifier
         (yyval.node)->lineNumber = currentTokenLine;
 
         TreeNode *aux = newNode();
-        strncpy(aux->lexeme, currentTokenValue, MAX_LEXEME_SIZE - 1);
-        aux->lexeme[MAX_LEXEME_SIZE - 1] = '\0';
+        strncpy(aux->lexeme, currentTokenValue, MAX_LEXEME_SIZE - 1); // Copy the identifier's lexeme
+        aux->lexeme[MAX_LEXEME_SIZE - 1] = '\0'; // Ensure null termination
         aux->lineNumber = currentTokenLine;
         aux->type = T_ID; // Set type for the identifier
 
         addNode(&(yyval.node), aux, 0); // Add aux as the first child
-
-
     }
-#line 1393 "parser.tab.c"
+#line 1404 "parser.tab.c"
     break;
 
   case 18: /* param: tipo_especificador T_ID T_LSQBRA T_RSQBRA  */
-#line 194 "parser.y"
+#line 204 "parser.y"
                                                 {
         (yyval.node) = newNode();
         (yyval.node)->type = T_ID; // Defining the type as an array
         (yyval.node)->lineNumber = currentTokenLine;
 
         TreeNode *aux = newNode();
-        strncpy(aux->lexeme, currentTokenValue, MAX_LEXEME_SIZE - 1);
-        aux->lexeme[MAX_LEXEME_SIZE - 1] = '\0';
+        strncpy(aux->lexeme, currentTokenValue, MAX_LEXEME_SIZE - 1); // Copy the array identifier's lexeme
+        aux->lexeme[MAX_LEXEME_SIZE - 1] = '\0'; // Ensure null termination
         aux->lineNumber = currentTokenLine;
         aux->type = T_ID; // Set type for the array identifier
 
         addNode(&(yyval.node), aux, 0); // Add aux as the first child
-
     }
-#line 1412 "parser.tab.c"
+#line 1423 "parser.tab.c"
     break;
 
   case 19: /* composto_decl: T_LBRACE local_declaracoes statement_lista T_RBRACE  */
-#line 211 "parser.y"
+#line 222 "parser.y"
                                                           {
         (yyval.node) = newNode(); // Create a new node for the compound declaration
         (yyval.node)->type = T_LBRACE; // Assuming T_LBRACE represents a compound declaration
@@ -1423,12 +1421,13 @@ yyreduce:
         if ((yyvsp[-1].node) != NULL) {
             addNode(&(yyval.node), (yyvsp[-1].node), 1); // Add statement list as the second child
         }
+
     }
-#line 1430 "parser.tab.c"
+#line 1445 "parser.tab.c"
     break;
 
   case 20: /* local_declaracoes: local_declaracoes var_declaracao  */
-#line 227 "parser.y"
+#line 242 "parser.y"
                                        {
         if ((yyvsp[-1].node) != NULL) {
             addNode(&(yyvsp[-1].node), (yyvsp[0].node), -1); // Add $2 as a sibling to $1
@@ -1437,19 +1436,19 @@ yyreduce:
             (yyval.node) = (yyvsp[0].node); // If $1 is NULL, use $2 as the start of the list
         }
     }
-#line 1443 "parser.tab.c"
+#line 1458 "parser.tab.c"
     break;
 
   case 21: /* local_declaracoes: %empty  */
-#line 235 "parser.y"
+#line 250 "parser.y"
                   {
-        (yyval.node) = NULL; // For an empty production, set $$ to
+        (yyval.node) = NULL; // For an empty production, set $$ to NULL
     }
-#line 1451 "parser.tab.c"
+#line 1466 "parser.tab.c"
     break;
 
   case 22: /* statement_lista: statement_lista statement  */
-#line 242 "parser.y"
+#line 257 "parser.y"
                                 {
         if ((yyvsp[-1].node) != NULL) {
             addNode(&(yyvsp[-1].node), (yyvsp[0].node), -1); // Add $2 as a sibling to $1
@@ -1458,75 +1457,75 @@ yyreduce:
             (yyval.node) = (yyvsp[0].node); // If $1 is NULL, use $2 as the start of the list
         }
     }
-#line 1464 "parser.tab.c"
+#line 1479 "parser.tab.c"
     break;
 
   case 23: /* statement_lista: %empty  */
-#line 250 "parser.y"
+#line 265 "parser.y"
                   {
         (yyval.node) = NULL; // For an empty production, set $$ to NULL
     }
-#line 1472 "parser.tab.c"
+#line 1487 "parser.tab.c"
     break;
 
   case 24: /* statement: expressao_decl  */
-#line 258 "parser.y"
+#line 272 "parser.y"
                      {
         (yyval.node) = (yyvsp[0].node);
     }
-#line 1480 "parser.tab.c"
+#line 1495 "parser.tab.c"
     break;
 
   case 25: /* statement: composto_decl  */
-#line 261 "parser.y"
+#line 275 "parser.y"
                     {
         (yyval.node) = (yyvsp[0].node);
     }
-#line 1488 "parser.tab.c"
+#line 1503 "parser.tab.c"
     break;
 
   case 26: /* statement: selecao_decl  */
-#line 264 "parser.y"
+#line 278 "parser.y"
                    {
         (yyval.node) = (yyvsp[0].node);
     }
-#line 1496 "parser.tab.c"
+#line 1511 "parser.tab.c"
     break;
 
   case 27: /* statement: iteracao_decl  */
-#line 267 "parser.y"
+#line 281 "parser.y"
                     {
         (yyval.node) = (yyvsp[0].node);
     }
-#line 1504 "parser.tab.c"
+#line 1519 "parser.tab.c"
     break;
 
   case 28: /* statement: retorno_decl  */
-#line 270 "parser.y"
+#line 284 "parser.y"
                    {
         (yyval.node) = (yyvsp[0].node);
     }
-#line 1512 "parser.tab.c"
+#line 1527 "parser.tab.c"
     break;
 
   case 29: /* expressao_decl: expressao T_SEMI  */
-#line 276 "parser.y"
+#line 291 "parser.y"
                        {
         (yyval.node) = (yyvsp[-1].node); // The result is the expression's subtree
     }
-#line 1520 "parser.tab.c"
+#line 1535 "parser.tab.c"
     break;
 
   case 30: /* expressao_decl: T_SEMI  */
-#line 280 "parser.y"
+#line 295 "parser.y"
              {
         (yyval.node) = NULL; // Representing an empty statement with NULL
     }
-#line 1528 "parser.tab.c"
+#line 1543 "parser.tab.c"
     break;
 
   case 31: /* selecao_decl: T_IF T_LPAREN expressao T_RPAREN statement  */
-#line 287 "parser.y"
+#line 302 "parser.y"
                                                                        {
         (yyval.node) = newNode();
         (yyval.node)->type = T_IF; // Defining the type as an if statement
@@ -1537,11 +1536,11 @@ yyreduce:
         addNode(&(yyval.node), (yyvsp[-2].node), 0); // Add the expression as the first child
         addNode(&(yyval.node), (yyvsp[0].node), 1); // Add the statement as the second child
     }
-#line 1543 "parser.tab.c"
+#line 1558 "parser.tab.c"
     break;
 
   case 32: /* selecao_decl: T_IF T_LPAREN expressao T_RPAREN statement T_ELSE statement  */
-#line 297 "parser.y"
+#line 312 "parser.y"
                                                                   {
         (yyval.node) = newNode();
         (yyval.node)->type = T_IF; // Defining the type as an if statement
@@ -1553,11 +1552,11 @@ yyreduce:
         addNode(&(yyval.node), (yyvsp[-2].node), 1); // Add the statement as the second child
         addNode(&(yyval.node), (yyvsp[0].node), 2); // Add the else part as the third child
     }
-#line 1559 "parser.tab.c"
+#line 1574 "parser.tab.c"
     break;
 
   case 33: /* iteracao_decl: T_WHILE T_LPAREN expressao T_RPAREN statement  */
-#line 312 "parser.y"
+#line 327 "parser.y"
                                                     {
         (yyval.node) = newNode();
         (yyval.node)->type = T_WHILE; // Assuming T_WHILE is the token type for "while" loops
@@ -1569,11 +1568,11 @@ yyreduce:
         addNode(&(yyval.node), (yyvsp[-2].node), 0); // Add the expression as the first child
         addNode(&(yyval.node), (yyvsp[0].node), 1); // Add the statement as the second child
     }
-#line 1575 "parser.tab.c"
+#line 1590 "parser.tab.c"
     break;
 
   case 34: /* retorno_decl: T_RETURN T_SEMI  */
-#line 327 "parser.y"
+#line 343 "parser.y"
                       {
         (yyval.node) = newNode();
         (yyval.node)->type = T_RETURN; // Assuming T_RETURN is the token type for "return"
@@ -1583,11 +1582,11 @@ yyreduce:
         (yyval.node)->nodeType = nRetornoDecl;
 
     }
-#line 1589 "parser.tab.c"
+#line 1604 "parser.tab.c"
     break;
 
   case 35: /* retorno_decl: T_RETURN expressao T_SEMI  */
-#line 337 "parser.y"
+#line 353 "parser.y"
                                 {
         (yyval.node) = newNode();
         (yyval.node)->type = T_RETURN; // Assuming T_RETURN is the token type for "return"
@@ -1599,11 +1598,11 @@ yyreduce:
         addNode(&(yyval.node), (yyvsp[-1].node), 0); // Add the expression as the first child
 
     }
-#line 1605 "parser.tab.c"
+#line 1620 "parser.tab.c"
     break;
 
   case 36: /* expressao: var T_ATRB expressao  */
-#line 351 "parser.y"
+#line 367 "parser.y"
                            {
         (yyval.node) = newNode();
         (yyval.node)->type = T_ATRB; // Assuming T_ATRB is the token type for assignment operator
@@ -1615,33 +1614,33 @@ yyreduce:
         addNode(&(yyval.node), (yyvsp[-2].node), 0); // Add the variable as the first child
         addNode(&(yyval.node), (yyvsp[0].node), 1); // Add the expression as the second child
     }
-#line 1621 "parser.tab.c"
+#line 1636 "parser.tab.c"
     break;
 
   case 37: /* expressao: simples_expressao  */
-#line 363 "parser.y"
+#line 379 "parser.y"
                         {
         (yyval.node) = (yyvsp[0].node);
         (yyval.node)->nodeType = nExpressao;
     }
-#line 1630 "parser.tab.c"
+#line 1645 "parser.tab.c"
     break;
 
   case 38: /* var: T_ID  */
-#line 370 "parser.y"
+#line 386 "parser.y"
            {
         (yyval.node) = newNode();
         (yyval.node)->type = T_ID; // Assuming T_ID is the token type for identifiers
         strncpy((yyval.node)->lexeme, currentTokenValue, MAX_LEXEME_SIZE - 1); // Copy the identifier's lexeme
         (yyval.node)->lexeme[MAX_LEXEME_SIZE - 1] = '\0'; // Ensure null termination
         (yyval.node)->lineNumber = currentTokenLine;
-        (yyval.node)->nodeType = nVar; 
+        (yyval.node)->nodeType = nVar;
     }
-#line 1643 "parser.tab.c"
+#line 1658 "parser.tab.c"
     break;
 
   case 39: /* var: T_ID T_LSQBRA expressao T_RSQBRA  */
-#line 379 "parser.y"
+#line 395 "parser.y"
                                        {
         (yyval.node) = newNode();
         (yyval.node)->type = T_ID; // Assuming T_ID is used for array identifiers as well
@@ -1653,31 +1652,31 @@ yyreduce:
         addNode(&(yyval.node), (yyvsp[-1].node), 0); // Add the index expression as the first child
 
     }
-#line 1659 "parser.tab.c"
+#line 1674 "parser.tab.c"
     break;
 
   case 40: /* simples_expressao: soma_expressao relacional soma_expressao  */
-#line 393 "parser.y"
+#line 410 "parser.y"
                                                {
         (yyval.node) = (yyvsp[-1].node); // Use the relational operator's node as the base
         (yyval.node)->nodeType = nSimplesExpressao;
         addNode(&(yyval.node), (yyvsp[-2].node), 0); // Add the first expression as the first child
         addNode(&(yyval.node), (yyvsp[0].node), 1); // Add the second expression as the second child
     }
-#line 1670 "parser.tab.c"
+#line 1685 "parser.tab.c"
     break;
 
   case 41: /* simples_expressao: soma_expressao  */
-#line 399 "parser.y"
+#line 416 "parser.y"
                      {
         (yyval.node) = (yyvsp[0].node);
         (yyval.node)->nodeType = nSimplesExpressao;
     }
-#line 1679 "parser.tab.c"
+#line 1694 "parser.tab.c"
     break;
 
   case 42: /* relacional: T_LT  */
-#line 406 "parser.y"
+#line 423 "parser.y"
            {
         (yyval.node) = newNode();
         (yyval.node)->type = T_LT; // Defining the type as a less than operator
@@ -1685,66 +1684,66 @@ yyreduce:
         strcpy((yyval.node)->lexeme, "<"); // Set lexeme to "<"
 
     }
-#line 1691 "parser.tab.c"
+#line 1706 "parser.tab.c"
     break;
 
   case 43: /* relacional: T_LTE  */
-#line 413 "parser.y"
+#line 430 "parser.y"
             {
         (yyval.node) = newNode();
         (yyval.node)->type = T_LTE; // Defining the type as a less than or equal operator
         (yyval.node)->lineNumber = currentTokenLine;
         strcpy((yyval.node)->lexeme, "<="); // Set lexeme to "<="
     }
-#line 1702 "parser.tab.c"
+#line 1717 "parser.tab.c"
     break;
 
   case 44: /* relacional: T_GT  */
-#line 419 "parser.y"
+#line 436 "parser.y"
            {
         (yyval.node) = newNode();
         (yyval.node)->type = T_GT; // Defining the type as a greater than operator
         (yyval.node)->lineNumber = currentTokenLine;
         strcpy((yyval.node)->lexeme, ">"); // Set lexeme to ">"
     }
-#line 1713 "parser.tab.c"
+#line 1728 "parser.tab.c"
     break;
 
   case 45: /* relacional: T_GTE  */
-#line 425 "parser.y"
+#line 442 "parser.y"
             {
         (yyval.node) = newNode();
         (yyval.node)->type = T_GTE; // Defining the type as a greater than or equal operator
         (yyval.node)->lineNumber = currentTokenLine;
         strcpy((yyval.node)->lexeme, ">="); // Set lexeme to ">="
     }
-#line 1724 "parser.tab.c"
+#line 1739 "parser.tab.c"
     break;
 
   case 46: /* relacional: T_EQ  */
-#line 431 "parser.y"
+#line 448 "parser.y"
            {
         (yyval.node) = newNode();
         (yyval.node)->type = T_EQ; // Defining the type as an equal operator
         (yyval.node)->lineNumber = currentTokenLine;
         strcpy((yyval.node)->lexeme, "=="); // Set lexeme to "=="
     }
-#line 1735 "parser.tab.c"
+#line 1750 "parser.tab.c"
     break;
 
   case 47: /* relacional: T_NEQ  */
-#line 437 "parser.y"
+#line 454 "parser.y"
             {
         (yyval.node) = newNode();
         (yyval.node)->type = T_NEQ; // Defining the type as a not equal operator
         (yyval.node)->lineNumber = currentTokenLine;
         strcpy((yyval.node)->lexeme, "!="); // Set lexeme to "!="
     }
-#line 1746 "parser.tab.c"
+#line 1761 "parser.tab.c"
     break;
 
   case 48: /* soma_expressao: soma_expressao T_PLUS termo  */
-#line 447 "parser.y"
+#line 464 "parser.y"
                                   {
         (yyval.node) = newNode();
         (yyval.node)->type = T_PLUS; // Defining the type as an addition operator
@@ -1754,11 +1753,11 @@ yyreduce:
         addNode(&(yyval.node), (yyvsp[-2].node), 0); // Add the first expression as the first child
         addNode(&(yyval.node), (yyvsp[0].node), 1); // Add the term as the second child
     }
-#line 1760 "parser.tab.c"
+#line 1775 "parser.tab.c"
     break;
 
   case 49: /* soma_expressao: soma_expressao T_MINUS termo  */
-#line 456 "parser.y"
+#line 473 "parser.y"
                                    {
         (yyval.node) = newNode();
         (yyval.node)->type = T_MINUS; // Defining the type as a subtraction operator
@@ -1768,19 +1767,19 @@ yyreduce:
         addNode(&(yyval.node), (yyvsp[-2].node), 0); // Add the first expression as the first child
         addNode(&(yyval.node), (yyvsp[0].node), 1); // Add the term as the second child
     }
-#line 1774 "parser.tab.c"
+#line 1789 "parser.tab.c"
     break;
 
   case 50: /* soma_expressao: termo  */
-#line 465 "parser.y"
+#line 482 "parser.y"
             {
         (yyval.node) = (yyvsp[0].node); // The result is the term's subtree
     }
-#line 1782 "parser.tab.c"
+#line 1797 "parser.tab.c"
     break;
 
   case 51: /* termo: termo T_MULT fator  */
-#line 472 "parser.y"
+#line 489 "parser.y"
                          {
         (yyval.node) = newNode();
         (yyval.node)->type = T_MULT; // Defining the type as an operator of multiplication
@@ -1788,11 +1787,11 @@ yyreduce:
         (yyval.node)->lineNumber = currentTokenLine;
 
     }
-#line 1794 "parser.tab.c"
+#line 1809 "parser.tab.c"
     break;
 
   case 52: /* termo: termo T_DIV fator  */
-#line 479 "parser.y"
+#line 496 "parser.y"
                         {
         (yyval.node) = newNode();
         (yyval.node)->type = T_DIV; // Defining the type as an operator of division
@@ -1800,19 +1799,19 @@ yyreduce:
         (yyval.node)->lineNumber = currentTokenLine;
 
     }
-#line 1806 "parser.tab.c"
+#line 1821 "parser.tab.c"
     break;
 
   case 53: /* termo: fator  */
-#line 486 "parser.y"
+#line 503 "parser.y"
             {
         (yyval.node) = (yyvsp[0].node);
     }
-#line 1814 "parser.tab.c"
+#line 1829 "parser.tab.c"
     break;
 
   case 54: /* fator: T_LPAREN expressao T_RPAREN  */
-#line 492 "parser.y"
+#line 509 "parser.y"
                                   {
         (yyval.node) = newNode();
         (yyval.node)->nodeType = nFator;
@@ -1820,38 +1819,38 @@ yyreduce:
         addNode(&(yyval.node), (yyvsp[-1].node), 0); // Add the expression as the first child
         (yyval.node)->lineNumber = currentTokenLine;
     }
-#line 1826 "parser.tab.c"
+#line 1841 "parser.tab.c"
     break;
 
   case 55: /* fator: var  */
-#line 499 "parser.y"
+#line 516 "parser.y"
           {
         (yyval.node) = (yyvsp[0].node); // The result is the variable's subtree
     }
-#line 1834 "parser.tab.c"
+#line 1849 "parser.tab.c"
     break;
 
   case 56: /* fator: ativacao  */
-#line 502 "parser.y"
+#line 519 "parser.y"
                {
         (yyval.node) = (yyvsp[0].node); // The result is the function call's subtree
     }
-#line 1842 "parser.tab.c"
+#line 1857 "parser.tab.c"
     break;
 
   case 57: /* fator: T_NUM  */
-#line 505 "parser.y"
+#line 522 "parser.y"
             {
         (yyval.node) = newNode();
         (yyval.node)->type = T_NUM; // Defining the type as a number
         strcpy((yyval.node)->lexeme, currentTokenValue); // Defining the lexeme as the number's value
         (yyval.node)->lineNumber = currentTokenLine;
     }
-#line 1853 "parser.tab.c"
+#line 1868 "parser.tab.c"
     break;
 
   case 58: /* ativacao: fun_id T_LPAREN args T_RPAREN  */
-#line 515 "parser.y"
+#line 532 "parser.y"
                                     {
         (yyval.node) = newNode();
         (yyval.node)->nodeType = nAtivacao; 
@@ -1862,28 +1861,28 @@ yyreduce:
 
         addNode(&(yyval.node), (yyvsp[-1].node), 0); // Add the arguments as the first child
     }
-#line 1868 "parser.tab.c"
+#line 1883 "parser.tab.c"
     break;
 
   case 59: /* args: arg_lista  */
-#line 528 "parser.y"
+#line 545 "parser.y"
                 {
         (yyval.node) = (yyvsp[0].node); // The result is the argument list's subtree
         (yyval.node)->nodeType = nArgs;
     }
-#line 1877 "parser.tab.c"
+#line 1892 "parser.tab.c"
     break;
 
   case 60: /* args: %empty  */
-#line 532 "parser.y"
+#line 549 "parser.y"
                   {
         (yyval.node) = NULL; // Representing an empty argument list with NULL
     }
-#line 1885 "parser.tab.c"
+#line 1900 "parser.tab.c"
     break;
 
   case 61: /* arg_lista: arg_lista T_COMMA expressao  */
-#line 538 "parser.y"
+#line 555 "parser.y"
                                   {
         if ((yyvsp[-2].node) != NULL) {
             (yyval.node) = (yyvsp[-2].node); // Keep the first argument list node as the root
@@ -1893,20 +1892,20 @@ yyreduce:
             (yyval.node) = (yyvsp[0].node); // If $1 is NULL, use $3 as the start of the list
         }
     }
-#line 1899 "parser.tab.c"
+#line 1914 "parser.tab.c"
     break;
 
   case 62: /* arg_lista: expressao  */
-#line 547 "parser.y"
+#line 564 "parser.y"
                 {
         (yyval.node) = (yyvsp[0].node); // For a single argument, just use the expression's subtree
         (yyval.node)->nodeType = nArgLista;
     }
-#line 1908 "parser.tab.c"
+#line 1923 "parser.tab.c"
     break;
 
 
-#line 1912 "parser.tab.c"
+#line 1927 "parser.tab.c"
 
       default: break;
     }
@@ -2099,7 +2098,7 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 556 "parser.y"
+#line 573 "parser.y"
 
 void yyerror(char *s){
     fprintf(stderr, "Error: Syntax Problem at line %d\n", currentTokenLine);
@@ -2252,7 +2251,7 @@ int yylex() {
         free(info);
         return 0;
     }
-    
+
     return token;
 }
 
