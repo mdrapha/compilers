@@ -12,7 +12,6 @@ int main(int argc, char *argv[])
         printf("Usage: ./lexer <file_name>\n");
         exit(1);
     }
-    printf("File name: %s\n", file_name);
     file = fopen(file_name, "r");
 
     if (file == NULL)
@@ -21,21 +20,20 @@ int main(int argc, char *argv[])
         exit(1);
     }
     printf("\033[1;32m"); // Set text to the color green
-    printf("Begin C- Compiling\n");
+    printf("\033[1;32mBegin \033[1;0m%s\033[1;32m Compiling\n", file_name);
     printf("\033[0m"); // Reset text to default color
 
     initGlobals(); // Initialize global variables
 
     Analysis *info = createGNT(lex, buffer, file);
     Analysis *temp = info;
-    // while (!buffer->eof)
-    // {
-    //     yylex();
-    // }
 
     printf("parser\n");
     printf("result: %d\n", yyparse());
-
+    if (parseTree != NULL) {
+        printTree(parseTree, 0, TRUE); // Imprime a árvore de análise
+        freeTree(parseTree); // Libera a memória alocada para a árvore
+    }
     free_buffer(buffer);
     fclose(file);
 

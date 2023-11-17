@@ -4,13 +4,14 @@
 FILE *file;
 Buffer *buffer;
 lexeme *lex = NULL;
+TreeNode *parseTree = NULL;
+
 
 void initGlobals() {
     // Initialize file-related variables
     buffer = malloc(sizeof(Buffer));
     if (buffer) {
         initBuffer(buffer);
-        printf("Buffer initialized\n");
     } else {
         printf("Error allocating memory for buffer\n");
         exit(1);
@@ -24,7 +25,6 @@ void initGlobals() {
         {
             lex->name = malloc(sizeof(char) * MAX_LEXEME_SIZE);
         }
-        printf("Lexeme initialized\n");
     } else {
         printf("Error allocating memory for lexeme\n");
         exit(1);

@@ -1,5 +1,91 @@
-#include "globals.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
 
+#define TRUE 1
+#define FALSE 0
+#define MAX_CHILDREN 3
+#define BUFFER_SIZE 256
+#define MAX_LEXEME_SIZE 64
+
+/*Enum for the different types of nodes in the parse tree.*/
+typedef enum { 
+    nPrograma,
+    nDeclaracaoLista, 
+    nDeclaracao, 
+    nVarDeclaracao, 
+    nTipoEspecificador, 
+    nFunDeclaracao, 
+    nParams, 
+    nParamLista, 
+    nParam, 
+    nCompostoDecl, 
+    nLocalDeclaracoes, 
+    nStatementLista, 
+    nStatement, 
+    nExpressaoDecl, 
+    nSelecaoDecl, 
+    nIteracaoDecl, 
+    nRetornoDecl, 
+    nExpressao, 
+    nVar, 
+    nSimplesExpressao, 
+    nRelacional, 
+    nSomaExpressao, 
+    nTermo, 
+    nFator, 
+    nAtivacao, 
+    nArgs, 
+    nArgLista, 
+} NodeType;
+
+  enum yytokentype
+  {
+    YYEMPTY = -2,
+    YYEOF = 0,                     /* "end of file"  */
+    YYerror = 256,                 /* error  */
+    YYUNDEF = 257,                 /* "invalid token"  */
+    T_ID = 258,                    /* T_ID  */
+    T_NUM = 259,                   /* T_NUM  */
+    T_INT = 260,                   /* T_INT  */
+    T_VOID = 261,                  /* T_VOID  */
+    T_IF = 262,                    /* T_IF  */
+    T_ELSE = 263,                  /* T_ELSE  */
+    T_WHILE = 264,                 /* T_WHILE  */
+    T_RETURN = 265,                /* T_RETURN  */
+    T_PLUS = 266,                  /* T_PLUS  */
+    T_MINUS = 267,                 /* T_MINUS  */
+    T_MULT = 268,                  /* T_MULT  */
+    T_DIV = 269,                   /* T_DIV  */
+    T_ATRB = 270,                  /* T_ATRB  */
+    T_EQ = 271,                    /* T_EQ  */
+    T_NEQ = 272,                   /* T_NEQ  */
+    T_LT = 273,                    /* T_LT  */
+    T_GT = 274,                    /* T_GT  */
+    T_LTE = 275,                   /* T_LTE  */
+    T_GTE = 276,                   /* T_GTE  */
+    T_LPAREN = 277,                /* T_LPAREN  */
+    T_RPAREN = 278,                /* T_RPAREN  */
+    T_LBRACE = 279,                /* T_LBRACE  */
+    T_RBRACE = 280,                /* T_RBRACE  */
+    T_LSQBRA = 281,                /* T_LSQBRA  */
+    T_RSQBRA = 282,                /* T_RSQBRA  */
+    T_SEMI = 283,                  /* T_SEMI  */
+    T_COMMA = 284,                 /* T_COMMA  */
+    LOWER_THAN_ELSE = 285          /* LOWER_THAN_ELSE  */
+  };
+  typedef enum yytokentype yytoken_kind_t;
+
+typedef struct treeNode {
+    yytoken_kind_t type; // The type of the node
+    int lineNumber; // The line number where the node was found
+    int level; // The level of the node in the parse tree
+    NodeType nodeType; // The type of the node
+    char lexeme[MAX_LEXEME_SIZE]; // The lexeme of the token
+    struct treeNode *children[MAX_CHILDREN]; // Array of pointers to children nodes
+    struct treeNode *sibling; // Pointer to the next sibling node
+} TreeNode;
 
 
 /**
@@ -186,3 +272,64 @@ void setNodeLevels(TreeNode *node, int level) {
     setNodeLevels(node->sibling, level);
 }
 
+
+
+
+int main() {
+    // Criar raiz da árvore
+    TreeNode *root = newNode();
+    root->nodeType = nPrograma;
+    strcpy(root->lexeme, "RootProgram");
+
+    // Criar nós filhos
+    TreeNode *child1 = newNode();
+    child1->nodeType = nVarDeclaracao;
+    strcpy(child1->lexeme, "intVar");
+    addNode(&root, child1, 0);
+
+    TreeNode *child2 = newNode();
+    child2->nodeType = nFunDeclaracao;
+    strcpy(child2->lexeme, "myFunction");
+    addNode(&root, child2, 1);
+
+    // Adicionar irmãos para child1
+    TreeNode *sibling1 = newNode();
+    sibling1->nodeType = nVarDeclaracao;
+    strcpy(sibling1->lexeme, "floatVar");
+    addNode(&child1, sibling1, -1); // -1 para adicionar como irmão
+
+    TreeNode *sibling2 = newNode();
+    sibling2->nodeType = nVarDeclaracao;
+    strcpy(sibling2->lexeme, "charVar");
+    addNode(&child1, sibling2, -1); // Adicionar como irmão de child1
+
+    // Adicionar filhos para child2 (Função)
+    TreeNode *funcChild1 = newNode();
+    funcChild1->nodeType = nParams;
+    strcpy(funcChild1->lexeme, "Params");
+    addNode(&child2, funcChild1, 0);
+
+    TreeNode *funcChild2 = newNode();
+    funcChild2->nodeType = nCompostoDecl;
+    strcpy(funcChild2->lexeme, "Body");
+    addNode(&child2, funcChild2, 1);
+
+    // Adicionar filhos para funcChild2 (Corpo da função)
+    TreeNode *statement1 = newNode();
+    statement1->nodeType = nStatement;
+    strcpy(statement1->lexeme, "Statement1");
+    addNode(&funcChild2, statement1, 0);
+
+    TreeNode *statement2 = newNode();
+    statement2->nodeType = nStatement;
+    strcpy(statement2->lexeme, "Statement2");
+    addNode(&funcChild2, statement2, 1);
+
+    // Definir níveis e imprimir a árvore
+    setNodeLevels(root, 0);
+    printTree(root, 0, TRUE);
+
+    // Liberar a memória da árvore
+    freeTree(root);
+    return 0;
+}

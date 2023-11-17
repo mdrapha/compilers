@@ -7,8 +7,7 @@
 #include <ctype.h>
 #include <stdbool.h>
 
-#define BUFFER_SIZE 256
-#define MAX_LEXEME_SIZE 64
+
 
 #endif
 
