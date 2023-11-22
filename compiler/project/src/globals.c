@@ -30,6 +30,31 @@ void initGlobals() {
         exit(1);
     }
 
+    // Initialize the idStack
+    idStack = malloc(sizeof(char *) * MAX_ID_STACK_SIZE);
+    if (idStack) {
+        for (int i = 0; i < MAX_ID_STACK_SIZE; ++i) {
+            idStack[i] = malloc(sizeof(char) * MAX_LEXEME_SIZE);
+        }
+
+    } else {
+        printf("Error allocating memory for idStack\n");
+        exit(1);
+    }
+
+    // Initialize numStack
+    numStack = malloc(sizeof(int *) * MAX_ID_STACK_SIZE);
+    if (numStack) {
+        for (int i = 0; i < MAX_ID_STACK_SIZE; ++i) {
+            numStack[i] = malloc(sizeof(int));
+        }
+
+    } else {
+        printf("Error allocating memory for numStack\n");
+        exit(1);
+    }
+
+
     // Initialize symbol table and other variables
     currentLine = 1;
     currentColumn = 0;
@@ -37,7 +62,9 @@ void initGlobals() {
     currentTokenValue = NULL; // Will be allocated later when needed
     currentTokenType = 0;
     currentTokenLine = 0;
-    currentScope = 'global'; // Assuming it will be initialized later if needed
+    currentScope = "global"; // Assuming it will be initialized later if needed
+    idStackIndex = 0;
+    numStackIndex = 0;
 }
 
 SymbolTable *symbolTable;
@@ -64,3 +91,11 @@ int currentTokenLine;
 
 /* Variable to manage the current scope*/
 char *currentScope;
+
+char **idStack;
+
+int idStackIndex;
+
+int **numStack;
+
+int numStackIndex;

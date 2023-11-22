@@ -2,12 +2,15 @@
    segundo o algoritmo de Euclides.*/
 
 int gcd (int u, int v){
+    int a;
     if (v == 0) return u;
-        else return gcd(v, u-u/v*v);
+        else 
+        return gcd(v, u-u/v*v);
 }
 
-void main(void)
+void main(int k)
 {   int x; int y;
     x = input(); y = input();
     output(gcd(x,y));
+    return 0;
 }

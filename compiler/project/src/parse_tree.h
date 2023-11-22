@@ -107,3 +107,11 @@ void printLexeme(TreeNode *node);
 
 //Function to get the node type name
 const char* getNodeTypeName(NodeType type);
+
+char *get_id_from_stack();
+
+int get_num_from_stack();
+
+void put_id_in_stack(char *id);
+
+void put_num_in_stack(int num);

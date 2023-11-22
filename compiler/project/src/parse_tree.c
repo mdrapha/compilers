@@ -186,3 +186,38 @@ void setNodeLevels(TreeNode *node, int level) {
     setNodeLevels(node->sibling, level);
 }
 
+char *get_id_from_stack(){
+    if (idStackIndex > 0) {
+        return idStack[idStackIndex - 1];
+    } else {
+        return NULL;
+    }
+}
+
+void put_id_in_stack(char *id){
+    if (idStackIndex < MAX_ID_STACK_SIZE) {
+        strcpy(idStack[idStackIndex], id);
+        idStackIndex++;
+    } else {
+        printf("Error: idStack is full\n");
+        exit(1);
+    }
+}
+
+int get_num_from_stack(){
+    if (numStackIndex > 0) {
+        return *numStack[numStackIndex - 1];
+    } else {
+        return -1;
+    }
+}
+
+void put_num_in_stack(int num){
+    if (numStackIndex < MAX_ID_STACK_SIZE) {
+        *numStack[numStackIndex] = num;
+        numStackIndex++;
+    } else {
+        printf("Error: numStack is full\n");
+        exit(1);
+    }
+}

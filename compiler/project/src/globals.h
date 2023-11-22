@@ -5,6 +5,8 @@
 #include "symbTable.h"
 
 #define BUFFER_SIZE 256
+#define MAX_ID_STACK_SIZE 256
+#define MAX_LEXEME_SIZE 64
 
 
 extern FILE *file;
@@ -37,6 +39,13 @@ extern int currentTokenLine;
 /*Variable to manage the current scope*/
 extern char *currentScope;
 
+extern int idStackIndex;
+
+extern int numStackIndex;
+
+extern char **idStack;
+
+extern int **numStack;
 
 
 void initGlobals();
