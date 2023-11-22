@@ -1433,7 +1433,7 @@ yyreduce:
             addNode(&(yyval.node), (yyvsp[-2].node), 0); // Add local declarations as the first child
         }
         if ((yyvsp[-1].node) != NULL) {
-            addNode(&(yyval.node), (yyvsp[-1].node), 1); // Add statement list as the second child
+            (yyval.node)=(yyvsp[-1].node); // Add statements as the second child
         }
 
     }
@@ -1627,7 +1627,6 @@ yyreduce:
                            {
         (yyval.node) = newNode();
         (yyval.node)->type = T_ATRB; // Assuming T_ATRB is the token type for assignment operator
-        strcpy((yyval.node)->lexeme, "="); // Set lexeme to "="
         (yyval.node)->lineNumber = currentTokenLine;
         (yyval.node)->nodeType = nExpressao;
 

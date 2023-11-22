@@ -2,7 +2,6 @@
    segundo o algoritmo de Euclides.*/
 
 int gcd (int u, int v){
-    int a;
     if (v == 0) return u;
         else 
         return gcd(v, u-u/v*v);
