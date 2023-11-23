@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
         // Add logic to print the symbol table
     }
 
-    //freeGNT(info);
+
     free_buffer(buffer);
     fclose(file);
 
