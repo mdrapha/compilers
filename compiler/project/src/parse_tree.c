@@ -99,6 +99,7 @@ void printLexeme(TreeNode *node) {
  * @return The string representation of the node type.
  */
 const char* getNodeTypeName(NodeType type) {
+
     switch (type) {
         case nPrograma: return "Program";
         case nDeclaracaoLista: return "Declaration List";
@@ -147,12 +148,22 @@ void printTree(TreeNode *node, int level, bool isLast) {
     }
     
     if (level > 0 && isLast) {
+        //Setting printf color to light blue
+        printf("\033[1;32m");
         printf("\\-");
+        printf("\033[0m");
     } else if (level > 0) {
+        //Setting printf color to light green
+        printf("\033[1;32m");
         printf("|-");
+        printf("\033[0m");
     }
+    //Setting printf color to blue
+    printf("\033[1;34m");
+    printf("%s: ", getNodeTypeName(node->nodeType));
+    printf("\033[0m");
 
-    printf("%s: %s\n", getNodeTypeName(node->nodeType), node->lexeme);
+    printf("%s\n", node->lexeme);
 
     // Imprime todos os filhos exceto o último com a marca de que não são os últimos
     for (int i = 0; i < 3 && node->children[i] != NULL; ++i) {

@@ -7,18 +7,25 @@ int main(int argc, char *argv[])
 {
     file_name = argv[1];
 
-    if (argc < 2)
-    {
-        printf("Usage: ./lexer <file_name>\n");
+    if (argc < 3)
+    {   
+        // Setting printf color to red
+        printf("\033[1;31m");
+        printf("Usage: ./lexer <file_name> (-l or -p or -s)\n");
+        printf("\033[0m");
         exit(1);
     }
     file = fopen(file_name, "r");
 
     if (file == NULL)
     {
+        // Setting printf color to red
+        printf("\033[1;31m");
         printf("Error opening file\n");
+        printf("\033[0m");
         exit(1);
     }
+
     printf("\033[1;32m"); // Set text to the color green
     printf("Begin C- Compiler\n");
     printf("\033[0m"); // Reset text to default color
@@ -46,6 +53,18 @@ int main(int argc, char *argv[])
         }
     }
 
+    // If no directive is given, exit the program with an error
+    if (opFlags[0] == FALSE && opFlags[1] == FALSE && opFlags[2] == FALSE)
+    {   
+        // Setting printf color to red
+        printf("\033[1;31m");
+        printf("Error: No directive given\n");
+        printf("\033[0m");
+        printf("\033[1;32m\nEnd of compiling\n\n\033[0m");
+
+        exit(1);
+    }
+
     if (opFlags[0] == TRUE) // Lexeme List
     {   
         printf("\033[1;32mLexeme List:\n\033[0m");
@@ -60,9 +79,9 @@ int main(int argc, char *argv[])
     if (opFlags[1] == TRUE) // Parse Tree
     {        
         printf("\033[1;32mParser Tree:\n\033[0m");
+        printf("\n");
         
         int result = yyparse();
-        printf("result: %d\n", result);
         
         if(result == 0){
             if (parseTree != NULL) {
@@ -83,6 +102,6 @@ int main(int argc, char *argv[])
     free_buffer(buffer);
     fclose(file);
 
-    printf("\033[1;32mEnd of compiling\n\n\033[0m");
+    printf("\033[1;32m\nEnd of compiling\n\n\033[0m");
     return 0;
 }

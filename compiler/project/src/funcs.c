@@ -580,7 +580,7 @@ void print_lexeme(lexeme *lex)
     {
         return;
     }
-    printf("Lexeme: '%s' \t Token:%s \t Line:%d\n", lex->name, get_token_name(lex->token), lex->line);
+    printf("\033[1;32m Lexeme: '\033[0m%s\033[1;32m'\033[0m \t \033[1;32mToken:\033[0m%s \t \033[1;32mLine:\033[0m%d\n", lex->name, get_token_name(lex->token), lex->line);
 }
 
 Analysis *get_next_token(Analysis *info)
