@@ -2,7 +2,7 @@
 CC = gcc
 
 # Flags de compilação
-CFLAGS = -Wall -g
+CFLAGS = -g
 
 # Lista dos arquivos-fonte
 SOURCES = main.c funcs.c lex.c parse_tree.c parser.tab.c globals.c 

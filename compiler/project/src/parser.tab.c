@@ -72,10 +72,9 @@
 
 #include "globals.h"
 
-TreeNode *root = NULL;
-
+int scopeCounter = 0; // Counter for the current scope
 void yyerror(char *s);
-
+char *tostring(int num);
 extern int yylex();
 
 #line 85 "parser.tab.c"
@@ -144,27 +143,28 @@ enum yysymbol_kind_t
   YYSYMBOL_var_declaracao = 35,     /* var_declaracao  */
   YYSYMBOL_tipo_especificador = 36, /* tipo_especificador  */
   YYSYMBOL_fun_declaracao = 37,     /* fun_declaracao  */
-  YYSYMBOL_params = 38,             /* params  */
-  YYSYMBOL_param_lista = 39,        /* param_lista  */
-  YYSYMBOL_param = 40,              /* param  */
-  YYSYMBOL_composto_decl = 41,      /* composto_decl  */
-  YYSYMBOL_local_declaracoes = 42,  /* local_declaracoes  */
-  YYSYMBOL_statement_lista = 43,    /* statement_lista  */
-  YYSYMBOL_statement = 44,          /* statement  */
-  YYSYMBOL_expressao_decl = 45,     /* expressao_decl  */
-  YYSYMBOL_selecao_decl = 46,       /* selecao_decl  */
-  YYSYMBOL_iteracao_decl = 47,      /* iteracao_decl  */
-  YYSYMBOL_retorno_decl = 48,       /* retorno_decl  */
-  YYSYMBOL_expressao = 49,          /* expressao  */
-  YYSYMBOL_var = 50,                /* var  */
-  YYSYMBOL_simples_expressao = 51,  /* simples_expressao  */
-  YYSYMBOL_relacional = 52,         /* relacional  */
-  YYSYMBOL_soma_expressao = 53,     /* soma_expressao  */
-  YYSYMBOL_termo = 54,              /* termo  */
-  YYSYMBOL_fator = 55,              /* fator  */
-  YYSYMBOL_ativacao = 56,           /* ativacao  */
-  YYSYMBOL_args = 57,               /* args  */
-  YYSYMBOL_arg_lista = 58           /* arg_lista  */
+  YYSYMBOL_fun_id = 38,             /* fun_id  */
+  YYSYMBOL_params = 39,             /* params  */
+  YYSYMBOL_param_lista = 40,        /* param_lista  */
+  YYSYMBOL_param = 41,              /* param  */
+  YYSYMBOL_composto_decl = 42,      /* composto_decl  */
+  YYSYMBOL_local_declaracoes = 43,  /* local_declaracoes  */
+  YYSYMBOL_statement_lista = 44,    /* statement_lista  */
+  YYSYMBOL_statement = 45,          /* statement  */
+  YYSYMBOL_expressao_decl = 46,     /* expressao_decl  */
+  YYSYMBOL_selecao_decl = 47,       /* selecao_decl  */
+  YYSYMBOL_iteracao_decl = 48,      /* iteracao_decl  */
+  YYSYMBOL_retorno_decl = 49,       /* retorno_decl  */
+  YYSYMBOL_expressao = 50,          /* expressao  */
+  YYSYMBOL_var = 51,                /* var  */
+  YYSYMBOL_simples_expressao = 52,  /* simples_expressao  */
+  YYSYMBOL_relacional = 53,         /* relacional  */
+  YYSYMBOL_soma_expressao = 54,     /* soma_expressao  */
+  YYSYMBOL_termo = 55,              /* termo  */
+  YYSYMBOL_fator = 56,              /* fator  */
+  YYSYMBOL_ativacao = 57,           /* ativacao  */
+  YYSYMBOL_args = 58,               /* args  */
+  YYSYMBOL_arg_lista = 59           /* arg_lista  */
 };
 typedef enum yysymbol_kind_t yysymbol_kind_t;
 
@@ -481,16 +481,16 @@ union yyalloc
 /* YYFINAL -- State number of the termination state.  */
 #define YYFINAL 9
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST 104
+#define YYLAST 99
 
 /* YYNTOKENS -- Number of terminals.  */
 #define YYNTOKENS 31
 /* YYNNTS -- Number of nonterminals.  */
-#define YYNNTS 28
+#define YYNNTS 29
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES 61
+#define YYNRULES 62
 /* YYNSTATES -- Number of states.  */
-#define YYNSTATES 102
+#define YYNSTATES 104
 
 /* YYMAXUTOK -- Last valid token kind.  */
 #define YYMAXUTOK 285
@@ -540,13 +540,13 @@ static const yytype_int8 yytranslate[] =
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int16 yyrline[] =
     {
-        0, 44, 44, 48, 49, 53, 54, 58, 59, 63,
-        64, 68, 74, 77, 83, 86, 92, 93, 97, 103,
-        106, 112, 115, 121, 124, 127, 130, 133, 139, 142,
-        148, 151, 157, 163, 166, 172, 175, 181, 182, 186,
-        189, 195, 198, 201, 204, 207, 210, 216, 219, 222,
-        228, 231, 234, 240, 241, 242, 243, 247, 251, 252,
-        256, 257};
+        0, 44, 44, 51, 60, 66, 69, 75, 88, 108,
+        115, 124, 147, 158, 162, 174, 182, 189, 204, 222,
+        242, 250, 257, 265, 272, 275, 278, 281, 284, 291,
+        295, 302, 312, 327, 343, 353, 367, 379, 386, 395,
+        410, 416, 423, 430, 436, 442, 448, 454, 464, 473,
+        482, 489, 496, 503, 509, 516, 519, 522, 532, 545,
+        549, 555, 564};
 #endif
 
 /** Accessing symbol of state STATE.  */
@@ -567,8 +567,8 @@ static const char *const yytname[] =
         "T_LTE", "T_GTE", "T_LPAREN", "T_RPAREN", "T_LBRACE", "T_RBRACE",
         "T_LSQBRA", "T_RSQBRA", "T_SEMI", "T_COMMA", "LOWER_THAN_ELSE",
         "$accept", "programa", "declaracao_lista", "declaracao",
-        "var_declaracao", "tipo_especificador", "fun_declaracao", "params",
-        "param_lista", "param", "composto_decl", "local_declaracoes",
+        "var_declaracao", "tipo_especificador", "fun_declaracao", "fun_id",
+        "params", "param_lista", "param", "composto_decl", "local_declaracoes",
         "statement_lista", "statement", "expressao_decl", "selecao_decl",
         "iteracao_decl", "retorno_decl", "expressao", "var", "simples_expressao",
         "relacional", "soma_expressao", "termo", "fator", "ativacao", "args",
@@ -581,12 +581,12 @@ yysymbol_name(yysymbol_kind_t yysymbol)
 }
 #endif
 
-#define YYPACT_NINF (-41)
+#define YYPACT_NINF (-92)
 
 #define yypact_value_is_default(Yyn) \
   ((Yyn) == YYPACT_NINF)
 
-#define YYTABLE_NINF (-14)
+#define YYTABLE_NINF (-15)
 
 #define yytable_value_is_error(Yyn) \
   0
@@ -595,17 +595,17 @@ yysymbol_name(yysymbol_kind_t yysymbol)
    STATE-NUM.  */
 static const yytype_int8 yypact[] =
     {
-        61, -41, -41, 10, 61, -41, -41, 19, -41, -41,
-        -41, 18, 68, 22, -41, 32, 29, 45, 13, -41,
-        -13, 23, 14, 61, 17, 54, -41, -41, -41, -41,
-        -41, 61, -41, 79, -1, 15, -15, -41, 62, 63,
-        9, 12, -41, -41, -41, -41, -41, -41, -41, -41,
-        55, 71, -41, 40, -9, -41, -41, 12, 12, 12,
-        12, -41, 59, 65, -41, 12, 12, 12, -41, -41,
-        -41, -41, -41, -41, 12, 12, 12, -41, 66, 67,
-        70, 69, 72, -41, -41, -41, -41, -9, -9, 64,
-        -41, -41, -41, 12, -41, 26, 26, -41, 82, -41,
-        26, -41};
+        46, -92, -92, 14, 46, -92, -92, 20, -92, -92,
+        -92, 15, 22, 13, -92, 53, 45, 19, 70, 51,
+        47, -92, 49, 52, 56, 46, -92, 48, -92, -92,
+        -92, -92, 46, -92, 76, 3, 15, 27, -92, 59,
+        60, 12, -1, -92, -92, 61, -92, -92, -92, -92,
+        -92, -92, 57, 69, -92, 44, -5, -92, -92, -1,
+        -1, -1, -92, 58, 64, -1, -92, -1, -1, -1,
+        -92, -92, -92, -92, -92, -92, -1, -1, -1, 62,
+        65, 67, -92, -92, -92, 68, 63, -92, -92, -5,
+        -5, 55, -92, -92, -92, 26, 26, -92, -1, 85,
+        -92, -92, 26, -92};
 
 /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
    Performed when YYTABLE does not specify something else to do.  Zero
@@ -613,99 +613,97 @@ static const yytype_int8 yypact[] =
 static const yytype_int8 yydefact[] =
     {
         0, 9, 10, 0, 2, 4, 5, 0, 6, 1,
-        3, 0, 0, 0, 7, 10, 0, 0, 12, 15,
-        0, 16, 0, 0, 0, 0, 20, 11, 14, 8,
-        17, 22, 19, 0, 0, 0, 37, 56, 0, 0,
-        0, 0, 18, 29, 24, 21, 23, 25, 26, 27,
-        0, 54, 36, 40, 49, 52, 55, 59, 0, 0,
-        0, 33, 0, 0, 28, 0, 0, 0, 45, 46,
-        41, 43, 42, 44, 0, 0, 0, 61, 0, 58,
-        0, 0, 0, 34, 53, 35, 54, 47, 48, 39,
-        50, 51, 57, 0, 38, 0, 0, 60, 30, 32,
-        0, 31};
+        3, 12, 0, 0, 7, 0, 0, 10, 0, 0,
+        13, 16, 0, 17, 0, 0, 8, 0, 21, 11,
+        15, 18, 23, 20, 0, 0, 0, 38, 57, 0,
+        0, 0, 0, 19, 30, 0, 25, 22, 24, 26,
+        27, 28, 0, 55, 37, 41, 50, 53, 56, 0,
+        0, 0, 34, 0, 0, 60, 29, 0, 0, 0,
+        46, 47, 42, 44, 43, 45, 0, 0, 0, 0,
+        0, 0, 35, 54, 62, 0, 59, 36, 55, 48,
+        49, 40, 51, 52, 39, 0, 0, 58, 0, 31,
+        33, 61, 0, 32};
 
 /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
     {
-        -41, -41, -41, 87, 73, 16, -41, -41, -41, 75,
-        77, -41, -41, -31, -41, -41, -41, -41, -40, -4,
-        -41, -41, 20, 11, 4, -41, -41, -41};
+        -92, -92, -92, 90, 66, 7, -92, 88, -92, -92,
+        71, 73, -92, -92, -91, -92, -92, -92, -92, -41,
+        -31, -92, -92, 23, 0, -7, -92, -92, -92};
 
 /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
     {
-        0, 3, 4, 5, 6, 7, 8, 17, 18, 19,
-        44, 31, 34, 45, 46, 47, 48, 49, 50, 51,
-        52, 74, 53, 54, 55, 56, 78, 79};
+        0, 3, 4, 5, 6, 7, 8, 45, 19, 20,
+        21, 46, 32, 35, 47, 48, 49, 50, 51, 52,
+        53, 54, 76, 55, 56, 57, 58, 85, 86};
 
 /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
    positive, shift that token.  If negative, reduce the rule whose
    number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_int8 yytable[] =
     {
-        62, 63, 36, 37, 75, 76, 38, 57, 39, 40,
-        9, 58, 36, 37, 24, 36, 37, 77, 80, 81,
-        82, 41, 11, 26, 42, 85, 20, 43, 16, 36,
-        37, 41, 21, 38, 41, 39, 40, 61, 26, 16,
-        12, 13, 23, 14, 13, 29, 14, 33, 41, 25,
-        26, 66, 67, 97, 43, -13, 68, 69, 70, 71,
-        72, 73, 86, 86, 98, 99, 1, 2, 22, 101,
-        86, 86, 86, 1, 15, 66, 67, 87, 88, 90,
-        91, 30, 35, 64, 59, 60, 65, 83, 84, 92,
-        100, 10, 95, 0, 89, 96, 93, 94, 28, 27,
-        0, 0, 0, 0, 32};
+        63, 64, 37, 38, 99, 100, 37, 38, 77, 78,
+        39, 103, 40, 41, 9, 37, 38, 16, 79, 80,
+        81, 42, 18, 11, 84, 42, 87, 28, 43, 37,
+        38, 44, 18, 39, 42, 40, 41, 88, 88, 34,
+        62, 13, -14, 14, 15, 88, 88, 88, 42, -12,
+        28, 1, 2, 59, 44, 68, 69, 101, 1, 17,
+        70, 71, 72, 73, 74, 75, 68, 69, 89, 90,
+        92, 93, 22, 23, 24, 31, 25, 26, 27, 36,
+        28, 60, 61, 65, 67, 66, 82, 83, 95, 94,
+        96, 97, 98, 102, 10, 12, 30, 29, 33, 91};
 
 static const yytype_int8 yycheck[] =
     {
-        40, 41, 3, 4, 13, 14, 7, 22, 9, 10,
-        0, 26, 3, 4, 27, 3, 4, 57, 58, 59,
-        60, 22, 3, 24, 25, 65, 4, 28, 12, 3,
-        4, 22, 3, 7, 22, 9, 10, 28, 24, 23,
-        22, 26, 29, 28, 26, 28, 28, 31, 22, 26,
-        24, 11, 12, 93, 28, 23, 16, 17, 18, 19,
-        20, 21, 66, 67, 95, 96, 5, 6, 23, 100,
-        74, 75, 76, 5, 6, 11, 12, 66, 67, 75,
-        76, 27, 3, 28, 22, 22, 15, 28, 23, 23,
-        8, 4, 23, -1, 74, 23, 29, 27, 23, 22,
-        -1, -1, -1, -1, 31};
+        41, 42, 3, 4, 95, 96, 3, 4, 13, 14,
+        7, 102, 9, 10, 0, 3, 4, 4, 59, 60,
+        61, 22, 15, 3, 65, 22, 67, 24, 25, 3,
+        4, 28, 25, 7, 22, 9, 10, 68, 69, 32,
+        28, 26, 23, 28, 22, 76, 77, 78, 22, 22,
+        24, 5, 6, 26, 28, 11, 12, 98, 5, 6,
+        16, 17, 18, 19, 20, 21, 11, 12, 68, 69,
+        77, 78, 27, 3, 23, 27, 29, 28, 26, 3,
+        24, 22, 22, 22, 15, 28, 28, 23, 23, 27,
+        23, 23, 29, 8, 4, 7, 25, 24, 32, 76};
 
 /* YYSTOS[STATE-NUM] -- The symbol kind of the accessing symbol of
    state STATE-NUM.  */
 static const yytype_int8 yystos[] =
     {
         0, 5, 6, 32, 33, 34, 35, 36, 37, 0,
-        34, 3, 22, 26, 28, 6, 36, 38, 39, 40,
-        4, 3, 23, 29, 27, 26, 24, 41, 40, 28,
-        27, 42, 35, 36, 43, 3, 3, 4, 7, 9,
-        10, 22, 25, 28, 41, 44, 45, 46, 47, 48,
-        49, 50, 51, 53, 54, 55, 56, 22, 26, 22,
-        22, 28, 49, 49, 28, 15, 11, 12, 16, 17,
-        18, 19, 20, 21, 52, 13, 14, 49, 57, 58,
-        49, 49, 49, 28, 23, 49, 50, 54, 54, 53,
-        55, 55, 23, 29, 27, 23, 23, 49, 44, 44,
-        8, 44};
+        34, 3, 38, 26, 28, 22, 4, 6, 36, 39,
+        40, 41, 27, 3, 23, 29, 28, 26, 24, 42,
+        41, 27, 43, 35, 36, 44, 3, 3, 4, 7,
+        9, 10, 22, 25, 28, 38, 42, 45, 46, 47,
+        48, 49, 50, 51, 52, 54, 55, 56, 57, 26,
+        22, 22, 28, 50, 50, 22, 28, 15, 11, 12,
+        16, 17, 18, 19, 20, 21, 53, 13, 14, 50,
+        50, 50, 28, 23, 50, 58, 59, 50, 51, 55,
+        55, 54, 56, 56, 27, 23, 23, 23, 29, 45,
+        45, 50, 8, 45};
 
 /* YYR1[RULE-NUM] -- Symbol kind of the left-hand side of rule RULE-NUM.  */
 static const yytype_int8 yyr1[] =
     {
         0, 31, 32, 33, 33, 34, 34, 35, 35, 36,
-        36, 37, 38, 38, 39, 39, 40, 40, 41, 42,
-        42, 43, 43, 44, 44, 44, 44, 44, 45, 45,
-        46, 46, 47, 48, 48, 49, 49, 50, 50, 51,
-        51, 52, 52, 52, 52, 52, 52, 53, 53, 53,
-        54, 54, 54, 55, 55, 55, 55, 56, 57, 57,
-        58, 58};
+        36, 37, 38, 39, 39, 40, 40, 41, 41, 42,
+        43, 43, 44, 44, 45, 45, 45, 45, 45, 46,
+        46, 47, 47, 48, 49, 49, 50, 50, 51, 51,
+        52, 52, 53, 53, 53, 53, 53, 53, 54, 54,
+        54, 55, 55, 55, 56, 56, 56, 56, 57, 58,
+        58, 59, 59};
 
 /* YYR2[RULE-NUM] -- Number of symbols on the right-hand side of rule RULE-NUM.  */
 static const yytype_int8 yyr2[] =
     {
         0, 2, 1, 2, 1, 1, 1, 3, 6, 1,
-        1, 6, 1, 1, 3, 1, 2, 4, 4, 2,
-        0, 2, 0, 1, 1, 1, 1, 1, 2, 1,
-        5, 7, 5, 2, 3, 3, 1, 1, 4, 3,
-        1, 1, 1, 1, 1, 1, 1, 3, 3, 1,
-        3, 3, 1, 3, 1, 1, 1, 4, 1, 0,
-        3, 1};
+        1, 6, 1, 1, 1, 3, 1, 2, 4, 4,
+        2, 0, 2, 0, 1, 1, 1, 1, 1, 2,
+        1, 5, 7, 5, 2, 3, 3, 1, 1, 4,
+        3, 1, 1, 1, 1, 1, 1, 1, 3, 3,
+        1, 3, 3, 1, 3, 1, 1, 1, 4, 1,
+        0, 3, 1};
 
 enum
 {
@@ -763,10 +761,10 @@ enum
   {                                                   \
     if (yydebug)                                      \
     {                                                 \
-      YYFPRINTF(stderr, "%s ", Title);                \
+      YYprintf("%s ", Title);                \
       yy_symbol_print(stderr,                         \
                       Kind, Value);                   \
-      YYFPRINTF(stderr, "\n");                        \
+      YYprintf("\n");                        \
     }                                                 \
   } while (0)
 
@@ -810,13 +808,13 @@ yy_symbol_print(FILE *yyo,
 static void
 yy_stack_print(yy_state_t *yybottom, yy_state_t *yytop)
 {
-  YYFPRINTF(stderr, "Stack now");
+  YYprintf("Stack now");
   for (; yybottom <= yytop; yybottom++)
   {
     int yybot = *yybottom;
-    YYFPRINTF(stderr, " %d", yybot);
+    YYprintf(" %d", yybot);
   }
-  YYFPRINTF(stderr, "\n");
+  YYprintf("\n");
 }
 
 #define YY_STACK_PRINT(Bottom, Top)    \
@@ -837,16 +835,16 @@ yy_reduce_print(yy_state_t *yyssp, YYSTYPE *yyvsp,
   int yylno = yyrline[yyrule];
   int yynrhs = yyr2[yyrule];
   int yyi;
-  YYFPRINTF(stderr, "Reducing stack by rule %d (line %d):\n",
+  YYprintf("Reducing stack by rule %d (line %d):\n",
             yyrule - 1, yylno);
   /* The symbols being reduced.  */
   for (yyi = 0; yyi < yynrhs; yyi++)
   {
-    YYFPRINTF(stderr, "   $%d = ", yyi + 1);
+    YYprintf("   $%d = ", yyi + 1);
     yy_symbol_print(stderr,
                     YY_ACCESSING_SYMBOL(+yyssp[yyi + 1 - yynrhs]),
                     &yyvsp[(yyi + 1) - (yynrhs)]);
-    YYFPRINTF(stderr, "\n");
+    YYprintf("\n");
   }
 }
 
@@ -1062,7 +1060,6 @@ yybackup:
   {
     YYDPRINTF((stderr, "Reading a token\n"));
     yychar = yylex();
-    printf("Token: %d\n", yychar);
   }
 
   if (yychar <= YYEOF)
@@ -1144,493 +1141,768 @@ yyreduce:
   yyval = yyvsp[1 - yylen];
 
   YY_REDUCE_PRINT(yyn);
-  printf("Reduzindo: %d\n", yyn);
   switch (yyn)
   {
   case 2: /* programa: declaracao_lista  */
 #line 44 "parser.y"
   {
-    printf("Programa reconhecido com sucesso!\n");
-    (yyval.node) = createNode(nPrograma, (yyvsp[0].node), NULL, NULL, NULL);
-    
+    parseTree = (yyvsp[0].node);
   }
-#line 1201 "parser.tab.c"
+#line 1203 "parser.tab.c"
   break;
 
   case 3: /* declaracao_lista: declaracao_lista declaracao  */
-#line 48 "parser.y"
+#line 51 "parser.y"
   {
-    (yyval.node) = createNode(nDeclaracaoLista, (yyvsp[-1].node), (yyvsp[0].node), NULL, NULL);
+    if ((yyvsp[-1].node) != NULL)
+    {
+      (yyval.node) = (yyvsp[-1].node);
+      addNode(&(yyvsp[-1].node), (yyvsp[0].node), -1); // Add as sibling
+    }
+    else
+    {
+      (yyval.node) = (yyvsp[0].node);
+    }
   }
-#line 1207 "parser.tab.c"
+#line 1217 "parser.tab.c"
   break;
 
   case 4: /* declaracao_lista: declaracao  */
-#line 49 "parser.y"
-  {
-    (yyval.node) = createNode(nDeclaracaoLista, (yyvsp[0].node), NULL, NULL, NULL);
-  }
-#line 1213 "parser.tab.c"
-  break;
-
-  case 5: /* declaracao: var_declaracao  */
-#line 53 "parser.y"
-  {
-    (yyval.node) = (yyvsp[0].node);
-  }
-#line 1219 "parser.tab.c"
-  break;
-
-  case 6: /* declaracao: fun_declaracao  */
-#line 54 "parser.y"
+#line 60 "parser.y"
   {
     (yyval.node) = (yyvsp[0].node);
   }
 #line 1225 "parser.tab.c"
   break;
 
-  case 7: /* var_declaracao: tipo_especificador T_ID T_SEMI  */
-#line 58 "parser.y"
+  case 5: /* declaracao: var_declaracao  */
+#line 66 "parser.y"
   {
-    (yyval.node) = createNode(nVarDeclaracao, (yyvsp[-2].node), NULL, NULL, strdup((yyvsp[-1].string)));
+    (yyval.node) = (yyvsp[0].node);
   }
-#line 1231 "parser.tab.c"
+#line 1233 "parser.tab.c"
+  break;
+
+  case 6: /* declaracao: fun_declaracao  */
+#line 69 "parser.y"
+  {
+    (yyval.node) = (yyvsp[0].node);
+  }
+#line 1241 "parser.tab.c"
+  break;
+
+  case 7: /* var_declaracao: tipo_especificador T_ID T_SEMI  */
+#line 75 "parser.y"
+  {
+    (yyval.node) = (yyvsp[-2].node);
+    (yyval.node)->type = T_ID;               // Defining the type as an identifier
+    (yyval.node)->nodeType = nVarDeclaracao; // Defining the node type as a variable declaration
+    (yyval.node)->lineNumber = currentTokenLine;
+
+    TreeNode *aux = newNode();
+    strcpy(aux->lexeme, get_id_from_stack()); // Assuming the identifier is the first child
+    addNode(&(yyval.node), aux, 0);           // Adiciona aux como o primeiro filho
+  }
+#line 1259 "parser.tab.c"
   break;
 
   case 8: /* var_declaracao: tipo_especificador T_ID T_LSQBRA T_NUM T_RSQBRA T_SEMI  */
-#line 59 "parser.y"
+#line 88 "parser.y"
   {
-    (yyval.node) = createNode(nVarDeclaracao, (yyvsp[-5].node), NULL, NULL, strdup((yyvsp[-4].string)));
+    (yyval.node) = (yyvsp[-5].node);
+    (yyval.node)->type = T_ID; // Assume que T_ID representa uma declaração de vetor
+    (yyval.node)->lineNumber = currentTokenLine;
+    (yyval.node)->nodeType = nVarDeclaracao; // Define o tipo do nó como declaração de variável
+
+    TreeNode *aux1 = newNode();
+    strcpy(aux1->lexeme, get_id_from_stack()); // Assume que armazena o nome da variável
+    addNode(&(yyval.node), aux1, 0);           // Adiciona aux como o primeiro filho
+
+    TreeNode *aux2 = newNode();
+    aux2->type = T_NUM;
+    strcpy(aux2->lexeme, tostring(get_num_from_stack()));
+    aux2->lineNumber = currentTokenLine;
+    addNode(&(yyval.node), aux2, 1); // Adiciona aux2 como o segundo filho
   }
-#line 1237 "parser.tab.c"
+#line 1282 "parser.tab.c"
   break;
 
   case 9: /* tipo_especificador: T_INT  */
-#line 63 "parser.y"
+#line 108 "parser.y"
   {
-    (yyval.node) = createNode(nTipoEspecificador, NULL, NULL, NULL, "int");
+    (yyval.node) = newNode();
+    (yyval.node)->type = T_INT;                  // Assuming T_INT is the token type for "int"
+    (yyval.node)->nodeType = nTipoEspecificador; // Defining the node type as a type specifier
+    strcpy((yyval.node)->lexeme, "int");         // Set lexeme to "int"
+    (yyval.node)->lineNumber = currentTokenLine;
+
+    addNode(&(yyval.node), (yyvsp[0].node), 0); // Adiciona o identificador como o primeiro filho
   }
-#line 1243 "parser.tab.c"
+#line 1294 "parser.tab.c"
   break;
 
   case 10: /* tipo_especificador: T_VOID  */
-#line 64 "parser.y"
-  {
-    (yyval.node) = createNode(nTipoEspecificador, NULL, NULL, NULL, "void");
-  }
-#line 1249 "parser.tab.c"
-  break;
-
-  case 11: /* fun_declaracao: tipo_especificador T_ID T_LPAREN params T_RPAREN composto_decl  */
-#line 68 "parser.y"
-  {
-    (yyval.node) = createNode(nFunDeclaracao, (yyvsp[-5].node), (yyvsp[-2].node), (yyvsp[0].node), strdup((yyvsp[-4].string)));
-  }
-#line 1257 "parser.tab.c"
-  break;
-
-  case 12: /* params: param_lista  */
-#line 74 "parser.y"
-  {
-    (yyval.node) = (yyvsp[0].node);
-  }
-#line 1265 "parser.tab.c"
-  break;
-
-  case 13: /* params: T_VOID  */
-#line 77 "parser.y"
-  {
-    (yyval.node) = createNode(nParams, NULL, NULL, NULL, "void");
-  }
-#line 1273 "parser.tab.c"
-  break;
-
-  case 14: /* param_lista: param_lista T_COMMA param  */
-#line 83 "parser.y"
-  {
-    (yyval.node) = createNode(nParamLista, (yyvsp[-2].node), (yyvsp[0].node), NULL, NULL);
-  }
-#line 1281 "parser.tab.c"
-  break;
-
-  case 15: /* param_lista: param  */
-#line 86 "parser.y"
-  {
-    (yyval.node) = createNode(nParamLista, (yyvsp[0].node), NULL, NULL, NULL);
-  }
-#line 1289 "parser.tab.c"
-  break;
-
-  case 16: /* param: tipo_especificador T_ID  */
-#line 92 "parser.y"
-  {
-    (yyval.node) = createNode(nParam, (yyvsp[-1].node), NULL, NULL, strdup((yyvsp[0].string)));
-  }
-#line 1295 "parser.tab.c"
-  break;
-
-  case 17: /* param: tipo_especificador T_ID T_LSQBRA T_RSQBRA  */
-#line 93 "parser.y"
-  {
-    (yyval.node) = createNode(nParam, (yyvsp[-3].node), NULL, NULL, strdup((yyvsp[-2].string)));
-  }
-#line 1301 "parser.tab.c"
-  break;
-
-  case 18: /* composto_decl: T_LBRACE local_declaracoes statement_lista T_RBRACE  */
-#line 97 "parser.y"
-  {
-    (yyval.node) = createNode(nCompostoDecl, (yyvsp[-2].node), (yyvsp[-1].node), NULL, NULL);
-  }
-#line 1309 "parser.tab.c"
-  break;
-
-  case 19: /* local_declaracoes: local_declaracoes var_declaracao  */
-#line 103 "parser.y"
-  {
-    (yyval.node) = createNode(nLocalDeclaracoes, (yyvsp[-1].node), (yyvsp[0].node), NULL, NULL);
-  }
-#line 1317 "parser.tab.c"
-  break;
-
-  case 20: /* local_declaracoes: %empty  */
-#line 106 "parser.y"
-  {
-    (yyval.node) = createNode(nLocalDeclaracoes, NULL, NULL, NULL, NULL);
-  }
-#line 1325 "parser.tab.c"
-  break;
-
-  case 21: /* statement_lista: statement_lista statement  */
-#line 112 "parser.y"
-  {
-    (yyval.node) = createNode(nStatementLista, (yyvsp[-1].node), (yyvsp[0].node), NULL, NULL);
-  }
-#line 1333 "parser.tab.c"
-  break;
-
-  case 22: /* statement_lista: %empty  */
 #line 115 "parser.y"
   {
-    (yyval.node) = createNode(nStatementLista, NULL, NULL, NULL, NULL);
+    (yyval.node) = newNode();
+    (yyval.node)->type = T_VOID; // Assuming T_VOID is the token type for "void"
+    strcpy((yyval.node)->lexeme, "void");
+    (yyval.node)->lineNumber = currentTokenLine;
+
+    addNode(&(yyval.node), (yyvsp[0].node), 0); // Adiciona o identificador como o primeiro filho
   }
-#line 1341 "parser.tab.c"
+#line 1305 "parser.tab.c"
   break;
 
-  case 23: /* statement: expressao_decl  */
-#line 121 "parser.y"
-  {
-    (yyval.node) = (yyvsp[0].node);
-  }
-#line 1349 "parser.tab.c"
-  break;
-
-  case 24: /* statement: composto_decl  */
+  case 11: /* fun_declaracao: tipo_especificador fun_id T_LPAREN params T_RPAREN composto_decl  */
 #line 124 "parser.y"
   {
-    (yyval.node) = (yyvsp[0].node);
+    (yyval.node) = (yyvsp[-5].node);                // O especificador de tipo torna-se o nó raiz para a declaração da função
+    (yyval.node)->type = currentTokenType;          // Assume que T_FUN é o tipo de token para declarações de função
+    (yyval.node)->lineNumber = currentTokenLine;    // Define o número da linha
+    (yyval.node)->nodeType = nFunDeclaracao;        // Define o tipo do nó como declaração de função
+    addNode(&(yyval.node), (yyvsp[-4].node), 0);    // Adiciona identificador da função como o primeiro filho
+    addNode(&(yyval.node), (yyvsp[-2].node), 1);    // Adiciona parâmetros como o segundo filho
+    addNode(&(yyvsp[-4].node), (yyvsp[0].node), 0); // Adiciona declaração composta como filho do identificador da função
   }
-#line 1357 "parser.tab.c"
+#line 1330 "parser.tab.c"
   break;
 
-  case 25: /* statement: selecao_decl  */
-#line 127 "parser.y"
+  case 12: /* fun_id: T_ID  */
+#line 147 "parser.y"
   {
-    (yyval.node) = (yyvsp[0].node);
+    (yyval.node) = newNode();
+    (yyval.node)->type = T_ID;                         // Assume que T_ID é o tipo de token para identificadores
+    strcpy((yyval.node)->lexeme, get_id_from_stack()); // Copia o lexema do identificador
+    (yyval.node)->lineNumber = currentTokenLine;
+
+    addNode(&(yyval.node), (yyvsp[0].node), 0); // Adiciona o identificador como o primeiro filho
   }
-#line 1365 "parser.tab.c"
+#line 1342 "parser.tab.c"
   break;
 
-  case 26: /* statement: iteracao_decl  */
-#line 130 "parser.y"
+  case 13: /* params: param_lista  */
+#line 158 "parser.y"
   {
-    (yyval.node) = (yyvsp[0].node);
+    (yyval.node) = (yyvsp[0].node); // Directly use the parameter list node
   }
-#line 1373 "parser.tab.c"
+#line 1351 "parser.tab.c"
   break;
 
-  case 27: /* statement: retorno_decl  */
-#line 133 "parser.y"
+  case 14: /* params: T_VOID  */
+#line 162 "parser.y"
   {
-    (yyval.node) = (yyvsp[0].node);
+    (yyval.node) = newNode();
+    (yyval.node)->type = T_VOID;          // Assuming T_VOID is the token type for "void"
+    strcpy((yyval.node)->lexeme, "void"); // Set lexeme to "void"
+    (yyval.node)->lineNumber = currentTokenLine;
+    (yyval.node)->nodeType = nParam;
   }
-#line 1381 "parser.tab.c"
+#line 1364 "parser.tab.c"
   break;
 
-  case 28: /* expressao_decl: expressao T_SEMI  */
-#line 139 "parser.y"
+  case 15: /* param_lista: param_lista T_COMMA param  */
+#line 174 "parser.y"
   {
-    (yyval.node) = createNode(nExpressaoDecl, (yyvsp[-1].node), NULL, NULL, NULL);
+    if ((yyvsp[-2].node) != NULL)
+    {
+      (yyvsp[-2].node)->nodeType = nParamLista;        // Defining the node type as a parameter list
+      addNode(&(yyvsp[-2].node), (yyvsp[0].node), -1); // Add $3 as a sibling to $1
+      (yyval.node) = (yyvsp[-2].node);                 // The first parameter list node is the root of the list
+    }
+    else
+    {
+      (yyval.node) = (yyvsp[0].node); // If $1 is NULL, use $3 as the start of the list
+    }
   }
-#line 1389 "parser.tab.c"
+#line 1377 "parser.tab.c"
   break;
 
-  case 29: /* expressao_decl: T_SEMI  */
-#line 142 "parser.y"
+  case 16: /* param_lista: param  */
+#line 182 "parser.y"
   {
-    (yyval.node) = createNode(nExpressaoDecl, NULL, NULL, NULL, NULL);
+    (yyval.node) = (yyvsp[0].node); // For a single parameter, just use the parameter node
   }
-#line 1397 "parser.tab.c"
+#line 1385 "parser.tab.c"
   break;
 
-  case 30: /* selecao_decl: T_IF T_LPAREN expressao T_RPAREN statement  */
-#line 148 "parser.y"
+  case 17: /* param: tipo_especificador T_ID  */
+#line 189 "parser.y"
   {
-    (yyval.node) = createNode(nSelecaoDecl, (yyvsp[-2].node), (yyvsp[0].node), NULL, "if");
+    (yyval.node) = newNode();
+    (yyval.node)->type = T_ID;
+    (yyval.node)->lineNumber = currentTokenLine;
+    (yyval.node)->nodeType = nParam;
+
+    TreeNode *tipoEspecificadorNode = (yyvsp[-1].node); // Capturando o nó tipo_especificador
+    TreeNode *idNode = newNode();                       // Criando um novo nó para o identificador
+    strcpy(idNode->lexeme, get_id_from_stack());
+    idNode->lineNumber = currentTokenLine;
+    idNode->type = T_ID;
+    idNode->nodeType = nParam;
+
+    addNode(&(yyval.node), tipoEspecificadorNode, 0); // Adiciona o tipo_especificador como primeiro filho
+    addNode(&(yyval.node), idNode, 1);                // Adiciona o identificador como segundo filho
   }
-#line 1405 "parser.tab.c"
+#line 1404 "parser.tab.c"
   break;
 
-  case 31: /* selecao_decl: T_IF T_LPAREN expressao T_RPAREN statement T_ELSE statement  */
-#line 151 "parser.y"
+  case 18: /* param: tipo_especificador T_ID T_LSQBRA T_RSQBRA  */
+#line 204 "parser.y"
   {
-    (yyval.node) = createNode(nSelecaoDecl, (yyvsp[-4].node), (yyvsp[-2].node), (yyvsp[0].node), "if-else");
+    (yyval.node) = newNode();
+    (yyval.node)->type = T_ID;
+    (yyval.node)->lineNumber = currentTokenLine;
+    (yyval.node)->nodeType = nParam;
+
+    TreeNode *tipoEspecificadorNode = (yyvsp[-3].node); // Capturando o nó tipo_especificador
+    TreeNode *idNode = newNode();                       // Criando um novo nó para o identificador
+    strcpy(idNode->lexeme, get_id_from_stack());
+    idNode->lineNumber = currentTokenLine;
+    idNode->type = T_ID;
+    idNode->nodeType = nParam;
+
+    addNode(&(yyval.node), tipoEspecificadorNode, 0); // Adiciona o tipo_especificador como primeiro filho
+    addNode(&(yyval.node), idNode, 1);                // Adiciona o identificador como segundo filho
   }
-#line 1413 "parser.tab.c"
+#line 1423 "parser.tab.c"
   break;
 
-  case 32: /* iteracao_decl: T_WHILE T_LPAREN expressao T_RPAREN statement  */
-#line 157 "parser.y"
+  case 19: /* composto_decl: T_LBRACE local_declaracoes statement_lista T_RBRACE  */
+#line 222 "parser.y"
   {
-    (yyval.node) = createNode(nIteracaoDecl, (yyvsp[-2].node), (yyvsp[0].node), NULL, "while");
-  }
-#line 1421 "parser.tab.c"
-  break;
+    (yyval.node) = newNode();                    // Create a new node for the compound declaration
+    (yyval.node)->type = T_LBRACE;               // Assuming T_LBRACE represents a compound declaration
+    (yyval.node)->lineNumber = currentTokenLine; // Set the line number
+    (yyval.node)->nodeType = nCompostoDecl;
 
-  case 33: /* retorno_decl: T_RETURN T_SEMI  */
-#line 163 "parser.y"
-  {
-    (yyval.node) = createNode(nRetornoDecl, NULL, NULL, NULL, "return");
-  }
-#line 1429 "parser.tab.c"
-  break;
-
-  case 34: /* retorno_decl: T_RETURN expressao T_SEMI  */
-#line 166 "parser.y"
-  {
-    (yyval.node) = createNode(nRetornoDecl, (yyvsp[-1].node), NULL, NULL, "return");
-  }
-#line 1437 "parser.tab.c"
-  break;
-
-  case 35: /* expressao: var T_ATRB expressao  */
-#line 172 "parser.y"
-  {
-    (yyval.node) = createNode(nExpressao, (yyvsp[-2].node), (yyvsp[0].node), NULL, "=");
+    if ((yyvsp[-2].node) != NULL)
+    {
+      addNode(&(yyval.node), (yyvsp[-2].node), 0); // Add local declarations as the first child
+    }
+    if ((yyvsp[-1].node) != NULL)
+    {
+      (yyval.node) = (yyvsp[-1].node); // Add statements as the second child
+    }
   }
 #line 1445 "parser.tab.c"
   break;
 
-  case 36: /* expressao: simples_expressao  */
-#line 175 "parser.y"
-  {
-    (yyval.node) = (yyvsp[0].node);
-  }
-#line 1453 "parser.tab.c"
-  break;
-
-  case 37: /* var: T_ID  */
-#line 181 "parser.y"
-  {
-    (yyval.node) = createNode(nVar, NULL, NULL, NULL, strdup((yyvsp[0].string)));
-  }
-#line 1459 "parser.tab.c"
-  break;
-
-  case 38: /* var: T_ID T_LSQBRA expressao T_RSQBRA  */
-#line 182 "parser.y"
-  {
-    (yyval.node) = createNode(nVar, NULL, (yyvsp[-1].node), NULL, strdup((yyvsp[-3].string)));
-  }
-#line 1465 "parser.tab.c"
-  break;
-
-  case 39: /* simples_expressao: soma_expressao relacional soma_expressao  */
-#line 186 "parser.y"
-  {
-    (yyval.node) = createNode(nSimplesExpressao, (yyvsp[-2].node), (yyvsp[0].node), NULL, (yyvsp[-1].node));
-  }
-#line 1473 "parser.tab.c"
-  break;
-
-  case 40: /* simples_expressao: soma_expressao  */
-#line 189 "parser.y"
-  {
-    (yyval.node) = (yyvsp[0].node);
-  }
-#line 1481 "parser.tab.c"
-  break;
-
-  case 41: /* relacional: T_LT  */
-#line 195 "parser.y"
-  {
-    (yyval.node) = createNode(nRelacional, NULL, NULL, NULL, "<");
-  }
-#line 1489 "parser.tab.c"
-  break;
-
-  case 42: /* relacional: T_LTE  */
-#line 198 "parser.y"
-  {
-    (yyval.node) = createNode(nRelacional, NULL, NULL, NULL, "<=");
-  }
-#line 1497 "parser.tab.c"
-  break;
-
-  case 43: /* relacional: T_GT  */
-#line 201 "parser.y"
-  {
-    (yyval.node) = createNode(nRelacional, NULL, NULL, NULL, ">");
-  }
-#line 1505 "parser.tab.c"
-  break;
-
-  case 44: /* relacional: T_GTE  */
-#line 204 "parser.y"
-  {
-    (yyval.node) = createNode(nRelacional, NULL, NULL, NULL, ">=");
-  }
-#line 1513 "parser.tab.c"
-  break;
-
-  case 45: /* relacional: T_EQ  */
-#line 207 "parser.y"
-  {
-    (yyval.node) = createNode(nRelacional, NULL, NULL, NULL, "==");
-  }
-#line 1521 "parser.tab.c"
-  break;
-
-  case 46: /* relacional: T_NEQ  */
-#line 210 "parser.y"
-  {
-    (yyval.node) = createNode(nRelacional, NULL, NULL, NULL, "!=");
-  }
-#line 1529 "parser.tab.c"
-  break;
-
-  case 47: /* soma_expressao: soma_expressao T_PLUS termo  */
-#line 216 "parser.y"
-  {
-    (yyval.node) = createNode(nSomaExpressao, (yyvsp[-2].node), (yyvsp[0].node), NULL, "+");
-  }
-#line 1537 "parser.tab.c"
-  break;
-
-  case 48: /* soma_expressao: soma_expressao T_MINUS termo  */
-#line 219 "parser.y"
-  {
-    (yyval.node) = createNode(nSomaExpressao, (yyvsp[-2].node), (yyvsp[0].node), NULL, "-");
-  }
-#line 1545 "parser.tab.c"
-  break;
-
-  case 49: /* soma_expressao: termo  */
-#line 222 "parser.y"
-  {
-    (yyval.node) = (yyvsp[0].node);
-  }
-#line 1553 "parser.tab.c"
-  break;
-
-  case 50: /* termo: termo T_MULT fator  */
-#line 228 "parser.y"
-  {
-    (yyval.node) = createNode(nTermo, (yyvsp[-2].node), (yyvsp[0].node), NULL, "*");
-  }
-#line 1561 "parser.tab.c"
-  break;
-
-  case 51: /* termo: termo T_DIV fator  */
-#line 231 "parser.y"
-  {
-    (yyval.node) = createNode(nTermo, (yyvsp[-2].node), (yyvsp[0].node), NULL, "/");
-  }
-#line 1569 "parser.tab.c"
-  break;
-
-  case 52: /* termo: fator  */
-#line 234 "parser.y"
-  {
-    (yyval.node) = (yyvsp[0].node);
-  }
-#line 1577 "parser.tab.c"
-  break;
-
-  case 53: /* fator: T_LPAREN expressao T_RPAREN  */
-#line 240 "parser.y"
-  {
-    (yyval.node) = createNode(nFator, (yyvsp[-1].node), NULL, NULL, NULL);
-  }
-#line 1583 "parser.tab.c"
-  break;
-
-  case 54: /* fator: var  */
-#line 241 "parser.y"
-  {
-    (yyval.node) = (yyvsp[0].node);
-  }
-#line 1589 "parser.tab.c"
-  break;
-
-  case 55: /* fator: ativacao  */
+  case 20: /* local_declaracoes: local_declaracoes var_declaracao  */
 #line 242 "parser.y"
   {
-    (yyval.node) = (yyvsp[0].node);
+    if ((yyvsp[-1].node) != NULL)
+    {
+      (yyvsp[-1].node)->nodeType = nLocalDeclaracoes;  // Defining the node type as a local declarations list
+      addNode(&(yyvsp[-1].node), (yyvsp[0].node), -1); // Add $2 as a sibling to $1
+      (yyval.node) = (yyvsp[-1].node);                 // The first local declarations node remains the root
+    }
+    else
+    {
+      (yyval.node) = (yyvsp[0].node); // If $1 is NULL, use $2 as the start of the list
+    }
   }
-#line 1595 "parser.tab.c"
+#line 1458 "parser.tab.c"
   break;
 
-  case 56: /* fator: T_NUM  */
-#line 243 "parser.y"
+  case 21: /* local_declaracoes: %empty  */
+#line 250 "parser.y"
   {
-    printf("NUM: %d\n", (yyvsp[0].num));
-    (yyval.node) = createNode(nFator, NULL, NULL, NULL, strdup((yyvsp[0].string)));
+    (yyval.node) = NULL; // For an empty production, set $$ to NULL
   }
-#line 1601 "parser.tab.c"
+#line 1466 "parser.tab.c"
   break;
 
-  case 57: /* ativacao: T_ID T_LPAREN args T_RPAREN  */
-#line 247 "parser.y"
-  {
-    (yyval.node) = createNode(nAtivacao, NULL, NULL, NULL, strdup((yyvsp[-3].string)));
-  }
-#line 1607 "parser.tab.c"
-  break;
-
-  case 58: /* args: arg_lista  */
-#line 251 "parser.y"
-  {
-    (yyval.node) = (yyvsp[0].node);
-  }
-#line 1613 "parser.tab.c"
-  break;
-
-  case 59: /* args: %empty  */
-#line 252 "parser.y"
-  {
-    (yyval.node) = createNode(nArgs, NULL, NULL, NULL, NULL);
-  }
-#line 1619 "parser.tab.c"
-  break;
-
-  case 60: /* arg_lista: arg_lista T_COMMA expressao  */
-#line 256 "parser.y"
-  {
-    (yyval.node) = createNode(nArgLista, (yyvsp[-2].node), (yyvsp[0].node), NULL, NULL);
-  }
-#line 1625 "parser.tab.c"
-  break;
-
-  case 61: /* arg_lista: expressao  */
+  case 22: /* statement_lista: statement_lista statement  */
 #line 257 "parser.y"
   {
-    (yyval.node) = createNode(nArgLista, (yyvsp[0].node), NULL, NULL, NULL);
+    if ((yyvsp[-1].node) != NULL)
+    {
+      (yyvsp[-1].node)->nodeType = nStatementLista;    // Defining the node type as a statement list
+      addNode(&(yyvsp[-1].node), (yyvsp[0].node), -1); // Add $2 as a sibling to $1
+      (yyval.node) = (yyvsp[-1].node);                 // The first statement list node remains the root
+    }
+    else
+    {
+      (yyval.node) = (yyvsp[0].node); // If $1 is NULL, use $2 as the start of the list
+    }
   }
-#line 1631 "parser.tab.c"
+#line 1479 "parser.tab.c"
   break;
 
-#line 1635 "parser.tab.c"
+  case 23: /* statement_lista: %empty  */
+#line 265 "parser.y"
+  {
+    (yyval.node) = NULL; // For an empty production, set $$ to NULL
+  }
+#line 1487 "parser.tab.c"
+  break;
+
+  case 24: /* statement: expressao_decl  */
+#line 272 "parser.y"
+  {
+    (yyval.node) = (yyvsp[0].node);
+  }
+#line 1495 "parser.tab.c"
+  break;
+
+  case 25: /* statement: composto_decl  */
+#line 275 "parser.y"
+  {
+    (yyval.node) = (yyvsp[0].node);
+  }
+#line 1503 "parser.tab.c"
+  break;
+
+  case 26: /* statement: selecao_decl  */
+#line 278 "parser.y"
+  {
+    (yyval.node) = (yyvsp[0].node);
+  }
+#line 1511 "parser.tab.c"
+  break;
+
+  case 27: /* statement: iteracao_decl  */
+#line 281 "parser.y"
+  {
+    (yyval.node) = (yyvsp[0].node);
+  }
+#line 1519 "parser.tab.c"
+  break;
+
+  case 28: /* statement: retorno_decl  */
+#line 284 "parser.y"
+  {
+    (yyval.node) = (yyvsp[0].node);
+  }
+#line 1527 "parser.tab.c"
+  break;
+
+  case 29: /* expressao_decl: expressao T_SEMI  */
+#line 291 "parser.y"
+  {
+    (yyval.node) = (yyvsp[-1].node); // The result is the expression's subtree
+  }
+#line 1535 "parser.tab.c"
+  break;
+
+  case 30: /* expressao_decl: T_SEMI  */
+#line 295 "parser.y"
+  {
+    (yyval.node) = NULL; // Representing an empty statement with NULL
+  }
+#line 1543 "parser.tab.c"
+  break;
+
+  case 31: /* selecao_decl: T_IF T_LPAREN expressao T_RPAREN statement  */
+#line 302 "parser.y"
+  {
+    (yyval.node) = newNode();
+    (yyval.node)->type = T_IF; // Defining the type as an if statement
+    strcpy((yyval.node)->lexeme, "if");
+    (yyval.node)->lineNumber = currentTokenLine;
+    (yyval.node)->nodeType = nSelecaoDecl;
+
+    addNode(&(yyval.node), (yyvsp[-2].node), 0); // Add the expression as the first child
+    addNode(&(yyval.node), (yyvsp[0].node), 1);  // Add the statement as the second child
+  }
+#line 1558 "parser.tab.c"
+  break;
+
+  case 32: /* selecao_decl: T_IF T_LPAREN expressao T_RPAREN statement T_ELSE statement  */
+#line 312 "parser.y"
+  {
+    (yyval.node) = newNode();
+    (yyval.node)->type = T_IF; // Defining the type as an if statement
+    strcpy((yyval.node)->lexeme, "if");
+    (yyval.node)->lineNumber = currentTokenLine;
+    (yyval.node)->nodeType = nSelecaoDecl;
+
+    addNode(&(yyval.node), (yyvsp[-4].node), 0); // Add the expression as the first child
+    addNode(&(yyval.node), (yyvsp[-2].node), 1); // Add the statement as the second child
+
+    // Create a new node for the "else" part
+    TreeNode *elseNode = newNode();
+    strcpy(elseNode->lexeme, "else");
+    addNode(&(yyval.node), elseNode, 2);      // Add the "else" part as the third child
+    addNode(&(elseNode), (yyvsp[0].node), 0); // Add the statement after "else" as a child of the "else" node
+  }
+#line 1574 "parser.tab.c"
+  break;
+
+  case 33: /* iteracao_decl: T_WHILE T_LPAREN expressao T_RPAREN statement  */
+#line 327 "parser.y"
+  {
+    (yyval.node) = newNode();
+    (yyval.node)->type = T_WHILE;          // Assuming T_WHILE is the token type for "while" loops
+    strcpy((yyval.node)->lexeme, "while"); // Set lexeme to "WHILE"
+    (yyval.node)->lineNumber = currentTokenLine;
+    (yyval.node)->nodeType = nIteracaoDecl;
+
+    addNode(&(yyval.node), (yyvsp[-2].node), 0); // Add the expression as the first child
+    addNode(&(yyval.node), (yyvsp[0].node), 1);  // Add the statement as the second child
+  }
+#line 1590 "parser.tab.c"
+  break;
+
+  case 34: /* retorno_decl: T_RETURN T_SEMI  */
+#line 343 "parser.y"
+  {
+    (yyval.node) = newNode();
+    (yyval.node)->type = T_RETURN;              // Assuming T_RETURN is the token type for "return"
+    strcpy((yyval.node)->lexeme, "ReturnVOID"); // Set lexeme to "ReturnVOID"
+    (yyval.node)->lineNumber = currentTokenLine;
+    (yyval.node)->nodeType = nRetornoDecl;
+
+    addNode(&(yyval.node), NULL, 0); // Add a NULL child to represent the expression
+  }
+#line 1604 "parser.tab.c"
+  break;
+
+  case 35: /* retorno_decl: T_RETURN expressao T_SEMI  */
+#line 353 "parser.y"
+  {
+    (yyval.node) = newNode();
+    (yyval.node)->type = T_RETURN;             // Assuming T_RETURN is the token type for "return"
+    strcpy((yyval.node)->lexeme, "ReturnINT"); // Set lexeme to "ReturnINT"
+    (yyval.node)->lineNumber = currentTokenLine;
+    (yyval.node)->nodeType = nRetornoDecl;
+
+    addNode(&(yyval.node), (yyvsp[-1].node), 0); // Add the expression as the first child
+  }
+#line 1620 "parser.tab.c"
+  break;
+
+  case 36: /* expressao: var T_ATRB expressao  */
+#line 367 "parser.y"
+  {
+    (yyval.node) = newNode();
+    (yyval.node)->type = T_ATRB; // Assuming T_ATRB is the token type for assignment operator
+    (yyval.node)->lineNumber = currentTokenLine;
+    (yyval.node)->nodeType = nExpressao;
+
+    addNode(&(yyval.node), (yyvsp[-2].node), 0); // Add the variable as the first child
+    addNode(&(yyval.node), (yyvsp[0].node), 1);  // Add the expression as the second child
+  }
+#line 1636 "parser.tab.c"
+  break;
+
+  case 37: /* expressao: simples_expressao  */
+#line 379 "parser.y"
+  {
+    (yyval.node) = (yyvsp[0].node);
+    (yyval.node)->nodeType = nExpressao;
+  }
+#line 1645 "parser.tab.c"
+  break;
+
+  case 38: /* var: T_ID  */
+#line 386 "parser.y"
+  {
+    (yyval.node) = newNode();
+    (yyval.node)->type = T_ID;                         // Assuming T_ID is the token type for identifiers
+    strcpy((yyval.node)->lexeme, get_id_from_stack()); // Copy the identifier's lexeme
+    (yyval.node)->lineNumber = currentTokenLine;
+    (yyval.node)->nodeType = nVar;
+
+    addNode(&(yyval.node), NULL, 0); // Add a NULL child to represent the index expression
+  }
+#line 1658 "parser.tab.c"
+  break;
+
+  case 39: /* var: T_ID T_LSQBRA expressao T_RSQBRA  */
+#line 395 "parser.y"
+  {
+    (yyval.node) = newNode();
+    (yyval.node)->type = T_ID;                         // Assuming T_ID is used for array identifiers as well
+    strcpy((yyval.node)->lexeme, get_id_from_stack()); // Copy the identifier's lexeme
+    (yyval.node)->lineNumber = currentTokenLine;
+    (yyval.node)->nodeType = nVar;
+
+    addNode(&(yyval.node), (yyvsp[-1].node), 0); // Add the index expression as the first child
+  }
+#line 1674 "parser.tab.c"
+  break;
+
+  case 40: /* simples_expressao: soma_expressao relacional soma_expressao  */
+#line 410 "parser.y"
+  {
+    (yyval.node) = (yyvsp[-1].node); // Use the relational operator's node as the base
+    (yyval.node)->nodeType = nSimplesExpressao;
+    addNode(&(yyval.node), (yyvsp[-2].node), 0); // Add the first expression as the first child
+    addNode(&(yyval.node), (yyvsp[0].node), 1);  // Add the second expression as the second child
+  }
+#line 1685 "parser.tab.c"
+  break;
+
+  case 41: /* simples_expressao: soma_expressao  */
+#line 416 "parser.y"
+  {
+    (yyval.node) = (yyvsp[0].node);
+    (yyval.node)->nodeType = nSimplesExpressao;
+  }
+#line 1694 "parser.tab.c"
+  break;
+
+  case 42: /* relacional: T_LT  */
+#line 423 "parser.y"
+  {
+    (yyval.node) = newNode();
+    (yyval.node)->type = T_LT; // Defining the type as a less than operator
+    (yyval.node)->lineNumber = currentTokenLine;
+    (yyval.node)->nodeType = nRelacional;
+    strcpy((yyval.node)->lexeme, "<"); // Set lexeme to "<"
+
+    addNode(&(yyval.node), (yyvsp[-2].node), 0); // Add the first expression as the first child
+  }
+#line 1706 "parser.tab.c"
+  break;
+
+  case 43: /* relacional: T_LTE  */
+#line 430 "parser.y"
+  {
+    (yyval.node) = newNode();
+    (yyval.node)->type = T_LTE; // Defining the type as a less than or equal operator
+    (yyval.node)->lineNumber = currentTokenLine;
+    (yyval.node)->nodeType = nRelacional;
+    strcpy((yyval.node)->lexeme, "<="); // Set lexeme to "<="
+
+    addNode(&(yyval.node), (yyvsp[-2].node), 0); // Add the first expression as the first child
+  }
+#line 1717 "parser.tab.c"
+  break;
+
+  case 44: /* relacional: T_GT  */
+#line 436 "parser.y"
+  {
+    (yyval.node) = newNode();
+    (yyval.node)->type = T_GT; // Defining the type as a greater than operator
+    (yyval.node)->lineNumber = currentTokenLine;
+    strcpy((yyval.node)->lexeme, ">"); // Set lexeme to ">"
+    (yyval.node)->nodeType = nRelacional;
+
+    addNode(&(yyval.node), (yyvsp[-2].node), 0); // Add the first expression as the first child
+  }
+#line 1728 "parser.tab.c"
+  break;
+
+  case 45: /* relacional: T_GTE  */
+#line 442 "parser.y"
+  {
+    (yyval.node) = newNode();
+    (yyval.node)->type = T_GTE; // Defining the type as a greater than or equal operator
+    (yyval.node)->lineNumber = currentTokenLine;
+    strcpy((yyval.node)->lexeme, ">="); // Set lexeme to ">="
+    (yyval.node)->nodeType = nRelacional;
+
+    addNode(&(yyval.node), (yyvsp[-2].node), 0); // Add the first expression as the first child
+  }
+#line 1739 "parser.tab.c"
+  break;
+
+  case 46: /* relacional: T_EQ  */
+#line 448 "parser.y"
+  {
+    (yyval.node) = newNode();
+    (yyval.node)->type = T_EQ; // Defining the type as an equal operator
+    (yyval.node)->lineNumber = currentTokenLine;
+    strcpy((yyval.node)->lexeme, "=="); // Set lexeme to "=="
+    (yyval.node)->nodeType = nRelacional;
+
+    addNode(&(yyval.node), (yyvsp[-2].node), 0); // Add the first expression as the first child
+  }
+#line 1750 "parser.tab.c"
+  break;
+
+  case 47: /* relacional: T_NEQ  */
+#line 454 "parser.y"
+  {
+    (yyval.node) = newNode();
+    (yyval.node)->type = T_NEQ; // Defining the type as a not equal operator
+    (yyval.node)->lineNumber = currentTokenLine;
+    strcpy((yyval.node)->lexeme, "!="); // Set lexeme to "!="
+    (yyval.node)->nodeType = nRelacional;
+
+    addNode(&(yyval.node), (yyvsp[-2].node), 0); // Add the first expression as the first child
+  }
+#line 1761 "parser.tab.c"
+  break;
+
+  case 48: /* soma_expressao: soma_expressao T_PLUS termo  */
+#line 464 "parser.y"
+  {
+    (yyval.node) = newNode();
+    (yyval.node)->type = T_PLUS;       // Defining the type as an addition operator
+    strcpy((yyval.node)->lexeme, "+"); // Defining the lexeme as "+"
+    (yyval.node)->lineNumber = currentTokenLine;
+    (yyval.node)->nodeType = nRelacional;
+
+    addNode(&(yyval.node), (yyvsp[-2].node), 0); // Add the first expression as the first child
+    addNode(&(yyval.node), (yyvsp[0].node), 1);  // Add the term as the second child
+  }
+#line 1775 "parser.tab.c"
+  break;
+
+  case 49: /* soma_expressao: soma_expressao T_MINUS termo  */
+#line 473 "parser.y"
+  {
+    (yyval.node) = newNode();
+    (yyval.node)->type = T_MINUS;      // Defining the type as a subtraction operator
+    strcpy((yyval.node)->lexeme, "-"); // Defining the lexeme as "-"
+    (yyval.node)->lineNumber = currentTokenLine;
+    (yyval.node)->nodeType = nSomaExpressao;
+
+    addNode(&(yyval.node), (yyvsp[-2].node), 0); // Add the first expression as the first child
+    addNode(&(yyval.node), (yyvsp[0].node), 1);  // Add the term as the second child
+  }
+#line 1789 "parser.tab.c"
+  break;
+
+  case 50: /* soma_expressao: termo  */
+#line 482 "parser.y"
+  {
+    (yyval.node) = (yyvsp[0].node); // The result is the term's subtree
+  }
+#line 1797 "parser.tab.c"
+  break;
+
+  case 51: /* termo: termo T_MULT fator  */
+#line 489 "parser.y"
+  {
+    (yyval.node) = newNode();
+    (yyval.node)->type = T_MULT;       // Defining the type as an operator of multiplication
+    strcpy((yyval.node)->lexeme, "*"); // Defining the lexeme as "*"
+    (yyval.node)->lineNumber = currentTokenLine;
+    (yyval.node)->nodeType = nTermo;
+
+    addNode(&(yyval.node), (yyvsp[-2].node), 0); // Add the first expression as the first child
+  }
+#line 1809 "parser.tab.c"
+  break;
+
+  case 52: /* termo: termo T_DIV fator  */
+#line 496 "parser.y"
+  {
+    (yyval.node) = newNode();
+    (yyval.node)->type = T_DIV;        // Defining the type as an operator of division
+    strcpy((yyval.node)->lexeme, "/"); // Defining the lexeme as "/"
+    (yyval.node)->lineNumber = currentTokenLine;
+    (yyval.node)->nodeType = nTermo;
+
+    addNode(&(yyval.node), (yyvsp[-2].node), 0); // Add the first expression as the first child
+  }
+#line 1821 "parser.tab.c"
+  break;
+
+  case 53: /* termo: fator  */
+#line 503 "parser.y"
+  {
+    (yyval.node) = (yyvsp[0].node);
+  }
+#line 1829 "parser.tab.c"
+  break;
+
+  case 54: /* fator: T_LPAREN expressao T_RPAREN  */
+#line 509 "parser.y"
+  {
+    (yyval.node) = newNode();
+    (yyval.node)->nodeType = nFator;
+    (yyval.node)->type = T_LPAREN; // Defining the type as a left parenthesis
+    (yyval.node)->lineNumber = currentTokenLine;
+
+    addNode(&(yyval.node), (yyvsp[-1].node), 0); // Add the expression as the first child
+  }
+#line 1841 "parser.tab.c"
+  break;
+
+  case 55: /* fator: var  */
+#line 516 "parser.y"
+  {
+    (yyval.node) = (yyvsp[0].node); // The result is the variable's subtree
+  }
+#line 1849 "parser.tab.c"
+  break;
+
+  case 56: /* fator: ativacao  */
+#line 519 "parser.y"
+  {
+    (yyval.node) = (yyvsp[0].node); // The result is the function call's subtree
+  }
+#line 1857 "parser.tab.c"
+  break;
+
+  case 57: /* fator: T_NUM  */
+#line 522 "parser.y"
+  {
+    (yyval.node) = newNode();
+    (yyval.node)->type = T_NUM;                                   // Defining the type as a number
+    strcpy((yyval.node)->lexeme, tostring(get_num_from_stack())); // Defining the lexeme as the number's value
+    (yyval.node)->lineNumber = currentTokenLine;
+    (yyval.node)->nodeType = nFator;
+
+    addNode(&(yyval.node), (yyvsp[0].node), 0); // Add the number as the first child
+  }
+#line 1868 "parser.tab.c"
+  break;
+
+  case 58: /* ativacao: fun_id T_LPAREN args T_RPAREN  */
+#line 532 "parser.y"
+  {
+    (yyval.node) = newNode();
+    (yyval.node)->nodeType = nAtivacao;
+    (yyval.node)->type = T_LPAREN;                          // Defining the type as an opening parenthesis
+    strcpy((yyval.node)->lexeme, (yyvsp[-3].node)->lexeme); // Copying the function identifier's lexeme
+    (yyval.node)->lineNumber = currentTokenLine;            // Defining the line number as the current line
+
+    addNode(&(yyval.node), (yyvsp[-1].node), 0); // Add the arguments as the first child
+  }
+#line 1883 "parser.tab.c"
+  break;
+
+  case 59: /* args: arg_lista  */
+#line 545 "parser.y"
+  {
+    (yyval.node) = (yyvsp[0].node); // The result is the argument list's subtree
+    (yyval.node)->nodeType = nArgs;
+  }
+#line 1892 "parser.tab.c"
+  break;
+
+  case 60: /* args: %empty  */
+#line 549 "parser.y"
+  {
+    (yyval.node) = NULL; // Representing an empty argument list with NULL
+  }
+#line 1900 "parser.tab.c"
+  break;
+
+  case 61: /* arg_lista: arg_lista T_COMMA expressao  */
+#line 555 "parser.y"
+  {
+    if ((yyvsp[-2].node) != NULL)
+    {
+      (yyval.node) = (yyvsp[-2].node); // Keep the first argument list node as the root
+      (yyval.node)->nodeType = nArgLista;
+      addNode(&(yyval.node), (yyvsp[0].node), -1); // Add the expression as a sibling to the first argument list node
+    }
+    else
+    {
+      (yyval.node) = (yyvsp[0].node); // If $1 is NULL, use $3 as the start of the list
+    }
+  }
+#line 1914 "parser.tab.c"
+  break;
+
+  case 62: /* arg_lista: expressao  */
+#line 564 "parser.y"
+  {
+    (yyval.node) = (yyvsp[0].node); // For a single argument, just use the expression's subtree
+    (yyval.node)->nodeType = nArgLista;
+  }
+#line 1923 "parser.tab.c"
+  break;
+
+#line 1927 "parser.tab.c"
 
   default:
     break;
@@ -1815,43 +2087,233 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 261 "parser.y"
+#line 573 "parser.y"
 
 void yyerror(char *s)
 {
-  fprintf(stderr, "Error: Semantical Problem on '%s' at line %d\n", s, currentTokenLine);
+  // Setting printf to background red and text white bold
+  printf("\033[1;37;41m");
+
+  switch (currentToken)
+  {
+  case T_ID:
+    printf("\033[1;37;41m");
+    printf("Error: Syntax Problem at line %d -- Unexpected ID %s --", currentTokenLine, s);
+    // Setting printf color to default
+    printf("\033[0m");
+    break;
+
+  case T_NUM:
+    printf("Error: Syntax Problem at line %d -- Unexpected NUM %s", currentTokenLine, s);
+    // Setting printf color to default
+    printf("\033[0m");
+    break;
+
+  case T_PLUS:
+    printf("Error: Syntax Problem at line %d -- Unexpected '+'", currentTokenLine);
+    // Setting printf color to default
+    printf("\033[0m");
+    break;
+
+  case T_MINUS:
+    printf("Error: Syntax Problem at line %d -- Unexpected '-'", currentTokenLine);
+    // Setting printf color to default
+    printf("\033[0m");
+    break;
+
+  case T_MULT:
+    printf("Error: Syntax Problem at line %d -- Unexpected '*'", currentTokenLine);
+    // Setting printf color to default
+    printf("\033[0m");
+    break;
+
+  case T_DIV:
+    printf("Error: Syntax Problem at line %d -- Unexpected '/'", currentTokenLine);
+    // Setting printf color to default
+    printf("\033[0m");
+    break;
+
+  case T_IF:
+    printf("Error: Syntax Problem at line %d -- Unexpected 'if'", currentTokenLine);
+    // Setting printf color to default
+    printf("\033[0m");
+    break;
+
+  case T_ELSE:
+    printf("Error: Syntax Problem at line %d -- Unexpected 'else'", currentTokenLine);
+    // Setting printf color to default
+    printf("\033[0m");
+    break;
+
+  case T_WHILE:
+    printf("Error: Syntax Problem at line %d -- Unexpected 'while'", currentTokenLine);
+    // Setting printf color to default
+    printf("\033[0m");
+    break;
+
+  case T_RETURN:
+    printf("Error: Syntax Problem at line %d -- Unexpected 'return'", currentTokenLine);
+    // Setting printf color to default
+    printf("\033[0m");
+    break;
+
+  case T_LT:
+    printf("Error: Syntax Problem at line %d -- Unexpected '<'", currentTokenLine);
+    // Setting printf color to default
+    printf("\033[0m");
+    break;
+
+  case T_LTE:
+    printf("Error: Syntax Problem at line %d -- Unexpected '<='", currentTokenLine);
+    // Setting printf color to default
+    printf("\033[0m");
+    break;
+
+  case T_GT:
+    printf("Error: Syntax Problem at line %d -- Unexpected '>'", currentTokenLine);
+    // Setting printf color to default
+    printf("\033[0m");
+    break;
+
+  case T_GTE:
+    printf("Error: Syntax Problem at line %d -- Unexpected '>='", currentTokenLine);
+    // Setting printf color to default
+    printf("\033[0m");
+    break;
+
+  case T_EQ:
+    printf("Error: Syntax Problem at line %d -- Unexpected '=='", currentTokenLine);
+    // Setting printf color to default
+    printf("\033[0m");
+    break;
+
+  case T_NEQ:
+    printf("Error: Syntax Problem at line %d -- Unexpected '!='", currentTokenLine);
+    // Setting printf color to default
+    printf("\033[0m");
+    break;
+
+  case T_ATRB:
+    printf("Error: Syntax Problem at line %d -- Unexpected '='", currentTokenLine);
+    // Setting printf color to default
+    printf("\033[0m");
+    break;
+
+  case T_LPAREN:
+    printf("Error: Syntax Problem at line %d -- Unexpected '('", currentTokenLine);
+    // Setting printf color to default
+    printf("\033[0m");
+    break;
+
+  case T_RPAREN:
+    printf("Error: Syntax Problem at line %d -- Unexpected ')'", currentTokenLine);
+    // Setting printf color to default
+    printf("\033[0m");
+    break;
+
+  case T_LBRACE:
+    printf("Error: Syntax Problem at line %d -- Unexpected '{'", currentTokenLine);
+    // Setting printf color to default
+    printf("\033[0m");
+    break;
+
+  case T_RBRACE:
+    printf("Error: Syntax Problem at line %d -- Unexpected '}'", currentTokenLine);
+    // Setting printf color to default
+    printf("\033[0m");
+    break;
+
+  case T_LSQBRA:
+    printf("Error: Syntax Problem at line %d -- Unexpected '['", currentTokenLine);
+    // Setting printf color to default
+    printf("\033[0m");
+    break;
+
+  case T_RSQBRA:
+    printf("Error: Syntax Problem at line %d -- Unexpected ']'", currentTokenLine);
+    // Setting printf color to default
+    printf("\033[0m");
+    break;
+
+  case T_SEMI:
+    printf("Error: Syntax Problem at line %d -- Unexpected ';'", currentTokenLine);
+    // Setting printf color to default
+    printf("\033[0m");
+    break;
+
+  case T_COMMA:
+    printf("Error: Syntax Problem at line %d -- Unexpected ','", currentTokenLine);
+    // Setting printf color to default
+    printf("\033[0m");
+    break;
+
+  case T_VOID:
+    printf("Error: Syntax Problem at line %d -- Unexpected 'void'", currentTokenLine);
+    // Setting printf color to default
+    printf("\033[0m");
+    break;
+
+  case T_INT:
+    printf("Error: Syntax Problem at line %d -- Unexpected 'int'", currentTokenLine);
+    // Setting printf color to default
+    printf("\033[0m");
+    break;
+
+  case T_EOF:
+    printf("\033[1;37;41m");
+    printf("Error: Syntax Problem at line %d -- Unexpected end", currentTokenLine);
+    // Setting printf color to default
+    printf("\033[0m");
+    break;
+
+  default:
+    printf("Error: Syntax Problem at line %d -- Unexpected token %s", currentTokenLine, s);
+    // Setting printf color to default
+    printf("\033[0m");
+    break;
+  }
+  printf("\n");
 }
 
 int yylex()
 {
   int token;
-  Analysis *info = createGNT(lex, buffer, file);
+  Analysis *info = createGNT(&lex, buffer, file);
   Analysis *temp = info;
 
   temp = get_next_token(info);
   token = temp->lex->token;
-  temp->lex->name[strlen(temp->lex->name)]='\0';
-  print_lexeme(temp->lex);
+
+  // Configuração do yylval union
   switch (token)
   {
   case T_NUM:
-    yylval.num = atoi(temp->lex->name);
+    put_num_in_stack(atoi(temp->lex->name)); // Se o token for um número, coloca seu lexema na pilha
+    break;
+  case T_ID:
+    put_id_in_stack(temp->lex->name); // Se o token for um identificador, coloca seu lexema na pilha
     break;
   default:
-    yylval.string = strdup(temp->lex->name); 
+    currentTokenValue = strdup(temp->lex->name); // Se o token for um identificador, copia seu lexema
     break;
-    
   }
 
-  // Atualizar informações de linha do token, se o Bison precisar delas
   currentTokenLine = temp->lex->line;
-  currentColumn = temp->buffer->currentPosition;
+  currentTokenValue = temp->lex->name;
   currentToken = temp->lex->token;
-  currentTokenLine = temp->lex->line;
-  currentTokenValue = strdup(temp->lex->name);
-
-  resetLexeme(temp->lex);
   info = temp;
+  if (token == T_EOF)
+  {
+    free(info);
+    return 0;
+  }
 
   return token;
+}
+
+char *tostring(int num)
+{
+  char *str = (char *)malloc(sizeof(char) * 10);
+  sprintf(str, "%d", num);
+  return str;
 }
