@@ -1196,6 +1196,7 @@ yyreduce:
   {
     (yyval.node) = (yyvsp[-2].node);
     (yyval.node)->type = T_ID;               // Defining the type as an identifier
+    (yyval.node)->isDecl = 1;                // Defining the node type as a variable declaration
     (yyval.node)->nodeType = nVarDeclaracao; // Defining the node type as a variable declaration
     (yyval.node)->lineNumber = currentTokenLine;
 
@@ -1211,6 +1212,7 @@ yyreduce:
   {
     (yyval.node) = (yyvsp[-5].node);
     (yyval.node)->type = T_ID; // Assume que T_ID representa uma declaração de vetor
+    (yyval.node)->isDecl = 1;  // Definindo o tipo de nó como declaração de variável
     (yyval.node)->lineNumber = currentTokenLine;
     (yyval.node)->nodeType = nVarDeclaracao; // Define o tipo do nó como declaração de variável
 
@@ -1272,6 +1274,8 @@ yyreduce:
 #line 147 "parser.y"
   {
     (yyval.node) = newNode();
+    (yyval.node)->isDecl = 1;                         // Defining the node type as a function declaration
+    (yyval.node)->isFunction=1;                  // Defining the node type as a function identifier
     (yyval.node)->type = T_ID;                         // Assume que T_ID é o tipo de token para identificadores
     strcpy((yyval.node)->lexeme, get_id_from_stack()); // Copia o lexema do identificador
     (yyval.node)->lineNumber = currentTokenLine;
@@ -1331,6 +1335,7 @@ yyreduce:
   {
     (yyval.node) = newNode();
     (yyval.node)->type = T_ID;
+    (yyval.node)->isDecl = 1; // Defining the node type as a parameter
     (yyval.node)->lineNumber = currentTokenLine;
     (yyval.node)->nodeType = nParam;
 
@@ -1353,6 +1358,7 @@ yyreduce:
     (yyval.node) = newNode();
     (yyval.node)->type = T_ID;
     (yyval.node)->lineNumber = currentTokenLine;
+    (yyval.node)->isDecl = 1;
     (yyval.node)->nodeType = nParam;
 
     TreeNode *tipoEspecificadorNode = (yyvsp[-3].node); // Capturando o nó tipo_especificador
@@ -1601,6 +1607,7 @@ yyreduce:
   {
     (yyval.node) = newNode();
     (yyval.node)->type = T_ID;                         // Assuming T_ID is the token type for identifiers
+    (yyval.node)->isUsage = 1;                          // Defining the node type as a variable
     strcpy((yyval.node)->lexeme, get_id_from_stack()); // Copy the identifier's lexeme
     (yyval.node)->lineNumber = currentTokenLine;
     (yyval.node)->nodeType = nVar;
@@ -1615,6 +1622,7 @@ yyreduce:
   {
     (yyval.node) = newNode();
     (yyval.node)->type = T_ID;                         // Assuming T_ID is used for array identifiers as well
+    (yyval.node)->isUsage = 1;                          // Defining the node type as a variable
     strcpy((yyval.node)->lexeme, get_id_from_stack()); // Copy the identifier's lexeme
     (yyval.node)->lineNumber = currentTokenLine;
     (yyval.node)->nodeType = nVar;
@@ -2278,7 +2286,7 @@ void yyerror(char *s)
 int yylex()
 {
   int token;
-  Analysis *info = createGNT(&lex, buffer, file);
+  Analysis *info = createGNT(lex, buffer, file);
   Analysis *temp = info;
 
   temp = get_next_token(info);

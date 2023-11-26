@@ -14,6 +14,11 @@ int main(int argc, char *argv[])
         printf("Usage: ./lexer <file_name> (-l or -p or -s)\n");
         printf("\033[0m");
         exit(1);
+    } else if(argc >3){
+        printf("\033[1;31m");
+        printf("----- Only use 1 flag at time!! -----\n");
+        printf("\033[0m");
+        exit(1);
     }
     file = fopen(file_name, "r");
 

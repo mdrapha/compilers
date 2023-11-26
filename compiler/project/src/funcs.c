@@ -48,11 +48,12 @@ void initBuffer(Buffer *buffer)
 // Function to fill the buffer
 void fill_buffer(Buffer *buffer, FILE *file)
 {
-    buffer->currentPosition = 0;                          // Reset the buffer position
-    memset(buffer->buffer, 0, BUFFER_SIZE);               // Fill the buffer with zeros
-    if (file == NULL) {
-    perror("Error opening file");
-    // Handle error, such as exiting or attempting a different file
+    buffer->currentPosition = 0;            // Reset the buffer position
+    memset(buffer->buffer, 0, BUFFER_SIZE); // Fill the buffer with zeros
+    if (file == NULL)
+    {
+        perror("Error opening file");
+        // Handle error, such as exiting or attempting a different file
     }
     if (fgets(buffer->buffer, BUFFER_SIZE, file) == NULL) // Fill the buffer with the next line of the file
     {
@@ -138,28 +139,31 @@ void free_lexeme(lexeme *lex)
 }
 
 // Function to reset the lexeme
-void resetLexeme(lexeme *lex) {
-    if (lex == NULL) {
+void resetLexeme(lexeme *lex)
+{
+    if (lex == NULL)
+    {
         fprintf(stderr, "Error: Invalid lexeme pointer\n");
         exit(1);
     }
 
     // Free the existing lexeme name
-    if (lex->name != NULL) {
+    if (lex->name != NULL)
+    {
         free(lex->name);
         lex->name = NULL;
     }
 
     // Allocate new memory for lex->name
     lex->name = malloc(sizeof(char) * MAX_LEXEME_SIZE);
-    if (lex->name == NULL) {
+    if (lex->name == NULL)
+    {
         fprintf(stderr, "Error: Memory allocation failed for lexeme name\n");
         exit(1);
     }
 }
 
-
-int isspecial(char c)
+int is_special(char c)
 {
     if (c == '+' || c == '-' || c == '*' || c == '/' || c == '<' || c == '>' || c == '=' || c == '!' || c == '(' || c == ')' || c == '{' || c == '}' || c == '[' || c == ']' || c == ';' || c == ',' || c == EOF)
     {
@@ -174,7 +178,7 @@ void cleanString(char *str)
 
     while (str[i])
     {
-        if (isalnum(str[i]) || isspecial(str[i]))
+        if (isalnum(str[i]) || is_special(str[i]))
         {                      // Verifica se o caractere é uma letra
             str[j++] = str[i]; // Copia o caractere para a posição 'j' se for uma letra
         }
@@ -585,8 +589,8 @@ void print_lexeme(lexeme *lex)
 
 Analysis *get_next_token(Analysis *info)
 {
-    
-     lex->name = (char *)malloc(MAX_LEXEME_SIZE * sizeof(char));
+
+    lex->name = (char *)malloc(MAX_LEXEME_SIZE * sizeof(char));
     int state = S0;
     int next_state;
     char c;
@@ -661,7 +665,6 @@ Analysis *get_next_token(Analysis *info)
                     fprintf(stderr, "Error: Unclosed Comment\n");
                     exit(1);
                 }
-
             }
 
             c = get_next_char(info->buffer, info->file);
@@ -671,7 +674,6 @@ Analysis *get_next_token(Analysis *info)
     }
 
     // lex.name[strlen(lex.name)] = '\0'; // Null-terminate the lexeme
-
 
     if (state == S_ERROR)
     {
@@ -696,7 +698,7 @@ Analysis *get_next_token(Analysis *info)
 
     lex->token = state;
     lex->token = get_token(lex);
-    lex->line = currentLine;    
+    lex->line = currentLine;
     info->lex = lex;
     cleanString(info->lex->name);
 

@@ -15,7 +15,6 @@ extern lexeme *lex;
 extern TreeNode *parseTree;
 extern SymbolTable *symbolTable;
 
-
 extern const char *file_name;
 
 /*Variable to manage the current line*/

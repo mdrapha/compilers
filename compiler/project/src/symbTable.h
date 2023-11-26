@@ -1,5 +1,6 @@
 #define HASH_TABLE_SIZE 997  
 
+
 typedef struct SymbolTableEntry {
     char *name;          // Symbol name
     int type;            // Type of the symbol
@@ -23,6 +24,8 @@ typedef struct SymbolTableEntry {
 typedef struct SymbolTable {
     SymbolTableEntry *first;  // Ponteiro para o primeiro símbolo na tabela
 } SymbolTable;
+
+
 
 int hash_t(char *str);
 SymbolTableEntry *createSymbolTableEntry(char *name, int type, int lineDecl, int isVector, int vectorSize, char *scope, int isFunction, int nParams, int returnType, int isDefined);

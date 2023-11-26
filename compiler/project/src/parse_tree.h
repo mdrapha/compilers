@@ -86,6 +86,9 @@ typedef struct treeNode {
     char lexeme[MAX_LEXEME_SIZE]; // The lexeme of the token
     struct treeNode *children[MAX_CHILDREN]; // Array of pointers to children nodes
     struct treeNode *sibling; // Pointer to the next sibling node
+    int isDecl; // Flag to indicate if the node is a declaration
+    int isUsage; // Flag to indicate if the node is a usage
+    int isFunction; // Flag to indicate if the node is a function
 } TreeNode;
 
 // Function declarations
