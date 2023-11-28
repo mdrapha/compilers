@@ -49,3 +49,4 @@ extern int **numStack;
 
 void initGlobals();
 
+void CompilerInit(int argc, char *argv[]);
