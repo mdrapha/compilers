@@ -89,6 +89,8 @@ typedef struct treeNode {
     int isDecl; // Flag to indicate if the node is a declaration
     int isUsage; // Flag to indicate if the node is a usage
     int isFunction; // Flag to indicate if the node is a function
+    int isArray; // Flag to indicate if the node is an array
+    int isParam; // Flag to indicate if the node is a parameter
 } TreeNode;
 
 // Function declarations
@@ -98,6 +100,9 @@ TreeNode* newNode();
 
 //Function to add a node to the tree
 void addNode(TreeNode **destination, TreeNode *newNode, int childIndex);
+
+//Function to set the level of each node
+void setNodeLevels(TreeNode *node, int level);
 
 //Function to free the tree
 void freeTree(TreeNode *node);

@@ -6,12 +6,47 @@ Buffer *buffer;
 lexeme *lex = NULL;
 TreeNode *parseTree = NULL;
 
+// Variável global para o escopo atual
+char *currentScope;
+char *nextScope;
+
+
+
 void CompilerInit(int argc, char *argv[]) {
  printf("\n\033[1;32m"); // Set text to the color green
     printf("Begin C- Compiler\n");
     printf("\033[0m\n"); // Reset text to default color
 
-    int opFlags[3] = {FALSE, FALSE, FALSE};
+    file_name = argv[1];
+
+    if (argc < 3)
+    {   
+        // Setting printf color to red
+        printf("\033[1;37;41m");
+        printf("Usage: ./lexer <file_name> (-l or -p or -s)");
+        printf("\033[0m\n");
+        exit(1);
+    } else if(argc >3){
+        printf("\033[1;37;41m");
+        printf("----- Only use 1 flag at time!! -----");
+        printf("\033[0m\n");
+        printf("\033[1;32m\nEnd of compiling\n\n\033[0m");
+
+        exit(1);
+    }
+    file = fopen(file_name, "r");
+
+    if (file == NULL)
+    {
+        // Setting printf color to red
+        printf("\033[1;37;41m");
+        printf("Error opening file\033[0m\n");
+        printf("\033[1;32m\nEnd of compiling\n\n\033[0m");
+
+        exit(1);
+    }
+
+        int opFlags[3] = {FALSE, FALSE, FALSE};
 
     /* Verifying the argv directives */
     for (int i = 2; i < argc; i++)
@@ -51,35 +86,6 @@ void CompilerInit(int argc, char *argv[]) {
         exit(1);
     }
 
-    file_name = argv[1];
-
-    if (argc < 3)
-    {   
-        // Setting printf color to red
-        printf("\033[1;37;41m");
-        printf("Usage: ./lexer <file_name> (-l or -p or -s)\n");
-        printf("\033[0m");
-        exit(1);
-    } else if(argc >3){
-        printf("\033[1;37;41m");
-        printf("----- Only use 1 flag at time!! -----");
-        printf("\033[0m\n");
-        printf("\033[1;32m\nEnd of compiling\n\n\033[0m");
-
-        exit(1);
-    }
-    file = fopen(file_name, "r");
-
-    if (file == NULL)
-    {
-        // Setting printf color to red
-        printf("\033[1;37;41m");
-        printf("Error opening file\033[0m\n");
-        printf("\033[1;32m\nEnd of compiling\n\n\033[0m");
-
-        exit(1);
-    }
-
     initGlobals(); // Initialize global variables
 
     Analysis *info = createGNT(lex, buffer, file);
@@ -104,6 +110,7 @@ void CompilerInit(int argc, char *argv[]) {
         
         if(result == 0){
             if (parseTree != NULL) {
+                setNodeLevels(parseTree, 0); // Set the level of each node
                 printTree(parseTree, 0, TRUE); // Print the parse tree
                 freeTree(parseTree); // Free memory allocated for the tree
             }
@@ -113,8 +120,20 @@ void CompilerInit(int argc, char *argv[]) {
     if (opFlags[2] == TRUE) // Symbol Table
     {
         printf("\033[1;32mSymbol Table:\n\033[0m");
+        int result = yyparse();
+        if(result == 0){
+            if (parseTree != NULL) {
+                TreeNode *root = parseTree;
+                setNodeLevels(root, 0); // Set the level of each node
+                startSymbolTableCreation(root);
+                // Trabalhe com a tabela de símbolos aqui
+                printSymbolTable();
+
+                freeSymbolTable();
+            }
+        }
         
-        // Add logic to print the symbol table
+
     }
 
 
@@ -184,7 +203,6 @@ void initGlobals() {
     numStackIndex = 0;
 }
 
-SymbolTable *symbolTable;
 
 const char *file_name;
 
