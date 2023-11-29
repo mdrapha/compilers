@@ -89,6 +89,7 @@ bool symbolExistsInScope(char *identifier, int scopeLevel, int lineNumber) {
 // Função para criar a tabela de símbolos a partir da árvore sintática
 void createSymbolTable(TreeNode *node, int scopeLevel) {
     if (node == NULL) return;
+    printf("createSymbolTable: %s %s\n", node->lexeme, get_token_name(node->type));
 
 
     // Processa o nó atual
