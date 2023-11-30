@@ -1558,7 +1558,7 @@ yyreduce:
     addNode(&(yyval.node), (yyvsp[-4].node), 0); // Add the expression as the first child
     addNode(&(yyval.node), (yyvsp[-2].node), 1); // Add the statement as the second child
 
-    // Create a new node for the "else" part
+    
     TreeNode *elseNode = newNode();
     elseNode->type = T_ELSE;
     currentTokenLine = currentTokenLine;
@@ -1861,8 +1861,8 @@ yyreduce:
   {
     (yyval.node) = newNode();
     (yyval.node)->nodeType = nFator;
-    (yyval.node)->type = T_ID; // Defining the type as a left parenthesis
-    strcpy((yyval.node)->lexeme, currentToken);
+    (yyval.node)->type = T_ID; // Defining the type as a id
+    strcpy((yyval.node)->lexeme, get_id_from_stack()); // Copy the identifier's lexeme
     (yyval.node)->lineNumber = currentTokenLine;
 
     addNode(&(yyval.node), (yyvsp[-1].node), 0); // Add the expression as the first child
@@ -1906,6 +1906,11 @@ yyreduce:
     (yyval.node) = newNode();
     (yyval.node)->nodeType = nAtivacao;
     (yyval.node)->type = T_ID;                          // Defining the type as an opening parenthesis
+    (yyval.node)->isDecl = 0;                           // Defining the node type as a variable declaration
+    (yyval.node)->isUsage = 1;                          // Defining the node type as a variable declaration
+    (yyval.node)->isFunction = 1;                       // Defining the node type as a function declaration
+    (yyval.node)->isArray = 0;                          // Defining the node type as a array declaration
+    (yyval.node)->isParam = 0;                          // Defining the node type as a array declaration
     strcpy((yyval.node)->lexeme, (yyvsp[-3].node)->lexeme); // Copying the function identifier's lexeme
     (yyval.node)->lineNumber = currentTokenLine;            // Defining the line number as the current line
 

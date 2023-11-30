@@ -232,3 +232,11 @@ void put_num_in_stack(int num){
         exit(1);
     }
 }
+
+void print_id_stack(){
+    printf("idStack: ");
+    for (int i = 0; i < idStackIndex; ++i) {
+        printf("%s ", idStack[i]);
+    }
+    printf("\n");
+}

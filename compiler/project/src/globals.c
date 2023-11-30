@@ -126,7 +126,7 @@ void CompilerInit(int argc, char *argv[]) {
                 TreeNode *root = parseTree;
                 setNodeLevels(root, 0); // Set the level of each node
                 startSymbolTableCreation(root);
-                // Trabalhe com a tabela de símbolos aqui
+                checkDeclarations();
                 printSymbolTable();
 
                 freeSymbolTable();

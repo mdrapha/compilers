@@ -123,3 +123,5 @@ int get_num_from_stack();
 void put_id_in_stack(char *id);
 
 void put_num_in_stack(int num);
+
+void print_id_stack();

@@ -1,6 +1,6 @@
 /* Um programa para calcular o mdc
    segundo o algoritmo de Euclides.*/
-
+int a;
 int gcd (int u, int v){
     if (v == 0) return u;
         else 

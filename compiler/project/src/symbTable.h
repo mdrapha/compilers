@@ -94,4 +94,8 @@ void freeSymbolTable();
 
 void printSymbolTable();
 
+void checkDeclarations();
+
+int verify_linesDecl(int lineDecl, int *linesUsed);
+
 #endif // SYMBOL_TABLE_H
