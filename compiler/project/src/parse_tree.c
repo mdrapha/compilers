@@ -37,14 +37,6 @@ TreeNode* newNode() {
 
 void addNode(TreeNode **destination, TreeNode *newNode, int childIndex) {
     if (destination == NULL || newNode == NULL){ 
-        //print if some of them have a lexeme
-        if (destination != NULL) {
-            printf(" (Lexeme_dest: %s)", (*destination)->lexeme);
-        }
-        if (newNode != NULL) {
-            printf(" (Lexeme_newnode: %s)", newNode->lexeme);
-        }
-        printf("\n");
     return;
     }
 
@@ -256,3 +248,49 @@ void print_id_stack(){
     }
     printf("\n");
 }
+
+void analyzeNodes(TreeNode *node) {
+    if (node == NULL) return;
+
+    // Verificar se o nó atual é um T_ID e atribuir o varType com base nos filhos ou irmãos
+    if (node->type != NULL) {
+        //printf("Node %s type: %s\n", node->lexeme, get_token_name(node->type));
+        for (int i = 0; i < MAX_CHILDREN; ++i) {
+            if (node->children[i] != NULL && 
+               (node->children[i]->type == T_INT || node->children[i]->type == T_VOID)) {
+                node->varType = node->children[i]->type;
+                //printf("Node %s varType: %s\n", node->lexeme, get_token_name(node->varType));
+                if(node->children[0])
+                //printf("Node1 %s varType: %s\n", node->children[0]->lexeme, get_token_name(node->children[0]->type));
+                if(node->children[1]){
+                                    node->children[1]->varType = node->children[0]->type;
+
+                //printf("Node2 %s varType: %s\n", node->children[1]->lexeme, get_token_name(node->children[1]->varType));
+                }
+
+                break;
+            }
+        }
+
+        TreeNode *sibling = node->sibling;
+        while (sibling != NULL) {
+            if (sibling->type == T_INT || sibling->type == T_VOID) {
+                node->varType = sibling->type;
+                //printf("NodeS %s varType: %d\n", node->lexeme, node->varType);
+                break;
+            }
+            sibling = sibling->sibling;
+        }
+    }
+
+    // Processar os filhos do nó atual
+    for (int i = 0; i < MAX_CHILDREN; ++i) {
+        analyzeNodes(node->children[i]);
+    }
+
+    // Processar o irmão do nó atual
+    analyzeNodes(node->sibling);
+}
+
+
+

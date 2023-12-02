@@ -1179,6 +1179,7 @@ yyreduce:
 #line 66 "parser.y"
   {
     (yyval.node) = (yyvsp[0].node);
+    (yyval.node)->nodeType = nVarDeclaracao; // Defining the node type as a variable declaration
   }
 #line 1233 "parser.tab.c"
   break;
@@ -1211,6 +1212,7 @@ yyreduce:
     aux->nodeType = nVarDeclaracao; // Defining the node type as a variable declaration
     aux->isDecl = 1; // Defining the node type as a variable declaration
     addNode(&(yyval.node), aux, 0);  // Add aux as the first child
+    addNode(&(yyval.node), (yyvsp[0].node), 1); // Add the type specifier as the second child
 
   }
 #line 1259 "parser.tab.c"
@@ -1283,7 +1285,7 @@ yyreduce:
     (yyval.node) = (yyvsp[-5].node);                // O especificador de tipo torna-se o nó raiz para a declaração da função
     (yyval.node)->type = currentTokenType;          // Assume que T_FUN é o tipo de token para declarações de função
     (yyval.node)->lineNumber = currentTokenLine;    // Define o número da linha
-    (yyval.node)->nodeType = nFunDeclaracao;        // Define o tipo do nó como declaração de função
+    (yyval.node)->nodeType = nTipoEspecificador;        // Define o tipo do nó como declaração de função
     (yyval.node)->isDecl = 1; // Defining the node type as a variable declaration
     (yyval.node)->isUsage = 0; // Defining the node type as a variable declaration
     (yyval.node)->isFunction = 1; // Defining the node type as a function declaration
@@ -1291,8 +1293,8 @@ yyreduce:
     (yyval.node)->isParam = 0; // Defining the node type as a array declaration
 
 
-    addNode(&(yyval.node), (yyvsp[-4].node), 0);    // Adiciona identificador da função como o primeiro filho
-    addNode(&(yyval.node), (yyvsp[-2].node), 1);    // Adiciona parâmetros como o segundo filho
+    addNode(&(yyval.node), (yyvsp[-4].node), 1);    // Adiciona identificador da função como o primeiro filho
+    addNode(&(yyval.node), (yyvsp[-2].node), 0);    // Adiciona parâmetros como o segundo filho
     addNode(&(yyvsp[-4].node), (yyvsp[0].node), 0); // Adiciona declaração composta como filho do identificador da função
   }
 #line 1330 "parser.tab.c"
@@ -1372,7 +1374,7 @@ yyreduce:
     strcpy(idNode->lexeme, get_id_from_stack());
     idNode->lineNumber = currentTokenLine;
     idNode->type = T_ID;
-    idNode->nodeType = nParam;
+    idNode->nodeType = nVarDeclaracao;
     idNode->isDecl = 1; // Defining the node type as a variable declaration
 
     addNode(&(yyval.node), tipoEspecificadorNode, 0); // Adiciona o tipo_especificador como primeiro filho
@@ -1400,7 +1402,7 @@ yyreduce:
     strcpy(idNode->lexeme, get_id_from_stack());
     idNode->lineNumber = currentTokenLine;
     idNode->type = T_ID;
-    idNode->nodeType = nParam;
+    idNode->nodeType = nVarArrDecl;
     idNode->isDecl = 1; // Defining the node type as a variable declaration
     idNode->isArray = 1;
 
@@ -1420,11 +1422,17 @@ yyreduce:
 
     if ((yyvsp[-2].node) != NULL)
     {
-      addNode(&(yyval.node), (yyvsp[-2].node), 0); // Add local declarations as the first child
+      //(yyval.node)= (yyvsp[-2].node);
+
+      addNode(&(yyval.node), (yyvsp[-2].node), 1); // Add local declarations as the first child
+      (yyval.node) = (yyvsp[-2].node);
     }
     if ((yyvsp[-1].node) != NULL)
     {
-      (yyval.node) = (yyvsp[-1].node); // Add statements as the second child
+      //(yyval.node) = (yyvsp[-1].node); // Add statements as the second child
+      addNode(&(yyval.node), (yyvsp[-1].node), -1); // Add local declarations as the first child
+      //(yyval.node) = (yyvsp[-1].node);
+
     }
   }
 #line 1445 "parser.tab.c"

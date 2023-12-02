@@ -10,23 +10,24 @@ TreeNode *parseTree = NULL;
 char *currentScope;
 char *nextScope;
 
-
-
-void CompilerInit(int argc, char *argv[]) {
- printf("\n\033[1;32m"); // Set text to the color green
+void CompilerInit(int argc, char *argv[])
+{
+    printf("\n\033[1;32m"); // Set text to the color green
     printf("Begin C- Compiler\n");
     printf("\033[0m\n"); // Reset text to default color
 
     file_name = argv[1];
 
     if (argc < 3)
-    {   
+    {
         // Setting printf color to red
         printf("\033[1;37;41m");
         printf("Usage: ./lexer <file_name> (-l or -p or -s)");
         printf("\033[0m\n");
         exit(1);
-    } else if(argc >3){
+    }
+    else if (argc > 3)
+    {
         printf("\033[1;37;41m");
         printf("----- Only use 1 flag at time!! -----");
         printf("\033[0m\n");
@@ -46,7 +47,7 @@ void CompilerInit(int argc, char *argv[]) {
         exit(1);
     }
 
-        int opFlags[3] = {FALSE, FALSE, FALSE};
+    int opFlags[3] = {FALSE, FALSE, FALSE};
 
     /* Verifying the argv directives */
     for (int i = 2; i < argc; i++)
@@ -67,7 +68,7 @@ void CompilerInit(int argc, char *argv[]) {
 
     // If no directive is given, exit the program with an error
     if (opFlags[0] == FALSE && opFlags[1] == FALSE && opFlags[2] == FALSE && argc > 2)
-    {   
+    {
         // Setting printf color to red
         printf("\033[1;37;41m");
         printf("Error: No valid directive given, please use -l, -p or -s!!");
@@ -75,8 +76,10 @@ void CompilerInit(int argc, char *argv[]) {
         printf("\033[1;32m\nEnd of compiling\n\n\033[0m");
 
         exit(1);
-    }else if(opFlags[0] == FALSE && opFlags[1] == FALSE && opFlags[2] == FALSE ){
-        
+    }
+    else if (opFlags[0] == FALSE && opFlags[1] == FALSE && opFlags[2] == FALSE)
+    {
+
         // Setting printf color to red
         printf("\033[1;37;41m");
         printf("Error: No directive given!!");
@@ -91,26 +94,28 @@ void CompilerInit(int argc, char *argv[]) {
     Analysis *info = createGNT(lex, buffer, file);
 
     if (opFlags[0] == TRUE) // Lexeme List
-    {   
+    {
         printf("\033[1;32mLexeme List:\n\033[0m");
-        
-        while(!buffer->eof){
+
+        while (!buffer->eof)
+        {
             print_lexeme((get_next_token(info))->lex);
         }
         printf("\n");
-
     }
 
     if (opFlags[1] == TRUE) // Parse Tree
-    {        
+    {
         printf("\033[1;32mParser Tree:\n\033[0m");
         printf("\n");
-        
+
         int result = yyparse();
-        
-        if(result == 0){
-            if (parseTree != NULL) {
-                setNodeLevels(parseTree, 0); // Set the level of each node
+
+        if (result == 0)
+        {
+            if (parseTree != NULL)
+            {
+                setNodeLevels(parseTree, 0);   // Set the level of each node
                 printTree(parseTree, 0, TRUE); // Print the parse tree
 
                 freeTree(parseTree); // Free memory allocated for the tree
@@ -122,21 +127,37 @@ void CompilerInit(int argc, char *argv[]) {
     {
         printf("\033[1;32mSymbol Table:\n\033[0m");
         int result = yyparse();
-        if(result == 0){
-            if (parseTree != NULL) {
+        if (result == 0)
+        {
+            if (parseTree != NULL)
+            {
                 TreeNode *root = parseTree;
-                setNodeLevels(root, 0); // Set the level of each node
-                startSymbolTableCreation(root);
-                checkDeclarations();
-                printSymbolTable();
 
+                setNodeLevels(root, 0); // Set the level of each node
+                analyzeNodes(root);
+                startSymbolTableCreation(root);
+                int errorFlag=checkDeclarations();
+                if(errorFlag==1){
+                    printf("\033[1;37;41m");
+                    printf("If u want to see the Symbol Table put 1 or 0 to exit");
+                    printf("\033[0m\n");
+                    
+                    int option;
+                    scanf("%d",&option);
+                    if(option==1){
+                        printSymbolTable();
+                    }
+                    else{
+                        exit(1);
+                    }
+                }
+                else{
+                    printSymbolTable();
+                }
                 freeSymbolTable();
             }
         }
-        
-
     }
-
 
     free_buffer(buffer);
     fclose(file);
@@ -144,53 +165,65 @@ void CompilerInit(int argc, char *argv[]) {
     printf("\033[1;32m\nEnd of compiling\n\n\033[0m");
 }
 
-void initGlobals() {
+void initGlobals()
+{
     // Initialize file-related variables
     buffer = malloc(sizeof(Buffer));
-    if (buffer) {
+    if (buffer)
+    {
         initBuffer(buffer);
-    } else {
+    }
+    else
+    {
         printf("Error allocating memory for buffer\n");
         exit(1);
     }
 
     // Initialize lex-related variables
     lex = malloc(sizeof(lexeme));
-    if (lex) {
+    if (lex)
+    {
         initLexeme(lex);
         if (lex != NULL)
         {
             lex->name = malloc(sizeof(char) * MAX_LEXEME_SIZE);
         }
-    } else {
+    }
+    else
+    {
         printf("Error allocating memory for lexeme\n");
         exit(1);
     }
 
     // Initialize the idStack
     idStack = malloc(sizeof(char *) * MAX_ID_STACK_SIZE);
-    if (idStack) {
-        for (int i = 0; i < MAX_ID_STACK_SIZE; ++i) {
+    if (idStack)
+    {
+        for (int i = 0; i < MAX_ID_STACK_SIZE; ++i)
+        {
             idStack[i] = malloc(sizeof(char) * MAX_LEXEME_SIZE);
         }
-
-    } else {
+    }
+    else
+    {
         printf("Error allocating memory for idStack\n");
         exit(1);
     }
 
     // Initialize numStack
     numStack = malloc(sizeof(int *) * MAX_ID_STACK_SIZE);
-    if (numStack) {
-        for (int i = 0; i < MAX_ID_STACK_SIZE; ++i) {
+    if (numStack)
+    {
+        for (int i = 0; i < MAX_ID_STACK_SIZE; ++i)
+        {
             numStack[i] = malloc(sizeof(int));
         }
-
-    } else {
+    }
+    else
+    {
         printf("Error allocating memory for numStack\n");
         exit(1);
     }
-
 
     // Initialize symbol table and other variables
     currentLine = 1;
@@ -204,11 +237,10 @@ void initGlobals() {
     numStackIndex = 0;
 }
 
-
 const char *file_name;
 
 /*Variable to manage the current line*/
-int currentLine =1;
+int currentLine = 1;
 
 /*Variable to manage the current column*/
 int currentColumn;
