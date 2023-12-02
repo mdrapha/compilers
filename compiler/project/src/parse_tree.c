@@ -1,5 +1,5 @@
-#include "globals.h"
-
+#include "../include/globals.h"
+#include <string.h> 
 
 
 /**
@@ -15,6 +15,7 @@ TreeNode* newNode() {
         exit(1);
     }
     node->type = YYUNDEF; // Initialize the type to undefined
+    node->varType = YYUNDEF; // Initialize the variable type to undefined
     node->lineNumber = -1; // Or another default value
     node->lexeme[0] = '\0'; // Initialize as an empty string
     for (int i = 0; i < MAX_CHILDREN; ++i) {
@@ -33,10 +34,19 @@ TreeNode* newNode() {
  * @param newNode The new node to be added.
  * @param childIndex The index (0 to 2) of the child where the new node should be added. If this value is outside 0-2, the new node is added as a sibling.
  */
-#include <string.h> // For strcpy
 
 void addNode(TreeNode **destination, TreeNode *newNode, int childIndex) {
-    if (destination == NULL || newNode == NULL) return;
+    if (destination == NULL || newNode == NULL){ 
+        //print if some of them have a lexeme
+        if (destination != NULL) {
+            printf(" (Lexeme_dest: %s)", (*destination)->lexeme);
+        }
+        if (newNode != NULL) {
+            printf(" (Lexeme_newnode: %s)", newNode->lexeme);
+        }
+        printf("\n");
+    return;
+    }
 
     if (*destination == NULL) {
         *destination = newNode;
@@ -104,8 +114,10 @@ const char* getNodeTypeName(NodeType type) {
         case nPrograma: return "Program";
         case nDeclaracaoLista: return "Declaration List";
         case nVarDeclaracao: return "Variable Declaration";
+        case nVarArrDecl: return "Array Variable Declaration";
         case nTipoEspecificador: return "Type Specifier";
         case nFunDeclaracao: return "Function Declaration";
+        case nFunCall: return "Function Call";
         case nParams: return "Parameters";
         case nParamLista: return "Parameter List";
         case nParam: return "Parameter";
@@ -113,12 +125,15 @@ const char* getNodeTypeName(NodeType type) {
         case nLocalDeclaracoes: return "Local Declarations";
         case nStatementLista: return "Statement List";
         case nStatement: return "Statement";
+        case nAtrb: return "Attribution";
         case nExpressaoDecl: return "Expression Declaration";
         case nSelecaoDecl: return "Selection Declaration";
         case nIteracaoDecl: return "Iteration Declaration";
         case nRetornoDecl: return "Return Declaration";
         case nExpressao: return "Expression";
         case nVar: return "Variable";
+        case nVarArr: return "Array Variable";
+        case nValue: return "Value";
         case nSimplesExpressao: return "Simple Expression";
         case nRelacional: return "Relational Operator";
         case nSomaExpressao: return "Additive Expression";
@@ -175,6 +190,7 @@ void printTree(TreeNode *node, int level, bool isLast) {
         printTree(node->sibling, level, FALSE);
     }
 }
+
 
 /**
  * Sets the level of each node in the tree, starting from a given node.

@@ -1,4 +1,4 @@
-#include "globals.h"
+#include "../include/globals.h"
 
 // Definitions of global variables
 FILE *file;
@@ -112,6 +112,7 @@ void CompilerInit(int argc, char *argv[]) {
             if (parseTree != NULL) {
                 setNodeLevels(parseTree, 0); // Set the level of each node
                 printTree(parseTree, 0, TRUE); // Print the parse tree
+
                 freeTree(parseTree); // Free memory allocated for the tree
             }
         }

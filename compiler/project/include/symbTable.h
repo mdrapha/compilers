@@ -81,7 +81,7 @@ char *func_or_var(int isFunction);
 void insertSymbol(TreeNode *Node, int scopeLevel);
 
 // Função para verificar se um identificador já existe na tabela de símbolos no mesmo escopo
-bool symbolExistsInScope(char *identifier, int scopeLevel, int lineNumber);
+bool symbolExistsInScope(TreeNode *aux, int scopeLevel, int lineNumber);
 
 // Função para criar a tabela de símbolos a partir da árvore sintática
 void createSymbolTable(TreeNode *node, int scopeLevel);
@@ -98,4 +98,9 @@ void checkDeclarations();
 
 int verify_linesDecl(int lineDecl, int *linesUsed);
 
+int verifyVariableDeclaration(TreeNode *variableNode);
+
+void classifyIDNodes(TreeNode *node);
+
+void classifyIDNodesInTree(TreeNode *node);
 #endif // SYMBOL_TABLE_H

@@ -52,8 +52,11 @@ typedef enum {
     nDeclaracaoLista, 
     nDeclaracao, 
     nVarDeclaracao, 
+    nVarArrDecl,
+    nAtrb,
     nTipoEspecificador, 
-    nFunDeclaracao, 
+    nFunDeclaracao,
+    nFunCall, 
     nParams, 
     nParamLista, 
     nParam, 
@@ -67,6 +70,8 @@ typedef enum {
     nRetornoDecl, 
     nExpressao, 
     nVar, 
+    nVarArr,
+    nValue,
     nSimplesExpressao, 
     nRelacional, 
     nSomaExpressao, 
@@ -83,6 +88,7 @@ typedef struct treeNode {
     int lineNumber; // The line number where the node was found
     int level; // The level of the node in the parse tree
     NodeType nodeType; // The type of the node
+    yytoken_kind_t varType; // The type of the variable
     char lexeme[MAX_LEXEME_SIZE]; // The lexeme of the token
     struct treeNode *children[MAX_CHILDREN]; // Array of pointers to children nodes
     struct treeNode *sibling; // Pointer to the next sibling node
@@ -109,6 +115,8 @@ void freeTree(TreeNode *node);
 
 //Function to print the tree
 void printTree(TreeNode *node, int level, bool isLast);
+
+void print_nodes(TreeNode *node, int level, bool isLast);
 
 //Function to print the tree
 void printLexeme(TreeNode *node);
