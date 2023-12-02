@@ -6,10 +6,12 @@ This is a compiler for a simple programming language called "C Minus" (C-). The 
 
 ## 2. How to run
     make
-      
-    # run the compiler in the bin directory
+
+#### running the compiler in the bin directory
 
     ./gcm <filename> <-l or -p or -s>
+#### running at project directory
+    bin/gcm <filename> <-l or -p or -s>
 
 #### -l: lexical analysis
 #### -p: syntax analysis
