@@ -8,7 +8,7 @@ CFLAGS = -g -Wall
 SOURCES = main.c funcs.c lex.c parse_tree.c parser.tab.c globals.c symbTable.c
 
 # Nome do arquivo de saída
-OUTPUT = lexer
+OUTPUT = ../bin/gcm
 
 all: $(OUTPUT)
 
