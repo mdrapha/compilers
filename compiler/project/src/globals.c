@@ -6,8 +6,10 @@ Buffer *buffer;
 lexeme *lex = NULL;
 TreeNode *parseTree = NULL;
 
-// Variável global para o escopo atual
+// Variable to manage the current scope
 char *currentScope;
+
+// Variable to manage the next scope
 char *nextScope;
 
 void CompilerInit(int argc, char *argv[])
@@ -237,6 +239,7 @@ void initGlobals()
     numStackIndex = 0;
 }
 
+/*Variable to manage the file name*/
 const char *file_name;
 
 /*Variable to manage the current line*/
@@ -260,10 +263,14 @@ int currentTokenLine;
 /* Variable to manage the current scope*/
 char *currentScope;
 
+/* Variable to manage the id stack*/
 char **idStack;
 
+/* Variable to manage the id stack index*/
 int idStackIndex;
 
+/* Variable to manage the num stack*/
 int **numStack;
 
+/* Variable to manage the num stack index*/
 int numStackIndex;

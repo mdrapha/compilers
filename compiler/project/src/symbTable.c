@@ -64,7 +64,7 @@ void insertSymbol(TreeNode *Node, int scopeLevel) {
     entry->lineDecl = (Node->nodeType == nVarArrDecl || Node->nodeType==nVarDeclaracao || Node->nodeType==nFunDeclaracao || Node->nodeType==nParam) ? Node->lineNumber : -1;
     entry->isFunction = Node->nodeType;
     entry->isArray = Node->isArray;
-    entry->value = 0; // or another initial value if applicable
+    entry->value = (Node->nodeType == nVarArrDecl || Node->nodeType==nVarDeclaracao || Node->nodeType==nFunDeclaracao || Node->nodeType==nParam) ? Node->ArraySize : -1;
     if(entry->isFunction == nFunDeclaracao || entry->isFunction == nFunCall){
     entry->type =  Node->varType;
     }

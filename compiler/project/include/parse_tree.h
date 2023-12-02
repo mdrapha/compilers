@@ -94,6 +94,7 @@ typedef struct treeNode {
     struct treeNode *sibling; // Pointer to the next sibling node
     int isDecl; // Flag to indicate if the node is a declaration
     int isUsage; // Flag to indicate if the node is a usage
+    int ArraySize; // Flag to indicate if the node is an array
     int isFunction; // Flag to indicate if the node is a function
     int isArray; // Flag to indicate if the node is an array
     int isParam; // Flag to indicate if the node is a parameter

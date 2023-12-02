@@ -1239,14 +1239,17 @@ yyreduce:
     aux1->nodeType = nVarArrDecl; // Defining the node type as a variable declaration
     aux1->isDecl = 1; // Defining the node type as a variable declaration
     aux1->isArray = 1; // Defining the node type as a array declaration
-    addNode(&(yyval.node), aux1, 0);           // Adiciona aux como o primeiro filho
 
     TreeNode *aux2 = newNode();
     aux2->type = T_NUM;
-    aux2->nodeType= nValue; // Defining the node type as a variable declaration
     strcpy(aux2->lexeme, tostring(get_num_from_stack()));
+    aux1->ArraySize=atoi(aux2->lexeme);
+    printf("Array size: %d\n",aux1->ArraySize);
+    aux2->nodeType= nValue; // Defining the node type as a variable declaration
     aux2->lineNumber = currentTokenLine;
     addNode(&(yyval.node), aux2, 1); // Adiciona aux2 como o segundo filho
+    addNode(&(yyval.node), aux1, 0);           // Adiciona aux como o primeiro filho
+
 
   }
 #line 1282 "parser.tab.c"
