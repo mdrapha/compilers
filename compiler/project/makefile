@@ -2,13 +2,13 @@
 CC = gcc
 
 # Flags de compilação
-CFLAGS = -g -Wall 
+CFLAGS = -g 
 
 # Lista dos arquivos-fonte
-SOURCES = main.c funcs.c lex.c parse_tree.c parser.tab.c globals.c symbTable.c
+SOURCES = src/main.c src/funcs.c src/lex.c src/parse_tree.c src/parser.tab.c src/globals.c src/symbTable.c
 
 # Nome do arquivo de saída
-OUTPUT = ../bin/gcm
+OUTPUT = bin/gcm
 
 all: $(OUTPUT)
 

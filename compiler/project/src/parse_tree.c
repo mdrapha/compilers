@@ -1,3 +1,11 @@
+/**
+ * @file parse_tree.c
+ * @brief Implementation file for the parse tree functions.
+ *
+ * This file contains the implementation of functions related to the creation, manipulation, and printing of a parse tree.
+ * The parse tree is represented using a TreeNode structure, which contains fields for the node type, variable type, line number, lexeme, children, and sibling.
+ * The functions in this file include creating a new tree node, adding a node as a child or sibling, freeing the memory allocated for the tree nodes, printing the lexeme of a node, retrieving the string representation of a node type, printing the tree structure, setting the level of each node in the tree, and analyzing the nodes to determine the variable type.
+ */
 #include "../include/globals.h"
 #include <string.h> 
 
@@ -7,7 +15,6 @@
  *
  * @return A pointer to the newly created node.
  */
-
 TreeNode* newNode() {
     TreeNode* node = (TreeNode*) malloc(sizeof(TreeNode));
     if (node == NULL) {
@@ -34,10 +41,9 @@ TreeNode* newNode() {
  * @param newNode The new node to be added.
  * @param childIndex The index (0 to 2) of the child where the new node should be added. If this value is outside 0-2, the new node is added as a sibling.
  */
-
 void addNode(TreeNode **destination, TreeNode *newNode, int childIndex) {
     if (destination == NULL || newNode == NULL){ 
-    return;
+        return;
     }
 
     if (*destination == NULL) {
@@ -57,7 +63,6 @@ void addNode(TreeNode **destination, TreeNode *newNode, int childIndex) {
         }
         current->sibling = newNode;
     }
-
 }
 
 
@@ -101,7 +106,6 @@ void printLexeme(TreeNode *node) {
  * @return The string representation of the node type.
  */
 const char* getNodeTypeName(NodeType type) {
-
     switch (type) {
         case nPrograma: return "Program";
         case nDeclaracaoLista: return "Declaration List";
@@ -205,6 +209,11 @@ void setNodeLevels(TreeNode *node, int level) {
     setNodeLevels(node->sibling, level);
 }
 
+/**
+ * Retrieves the identifier from the stack.
+ *
+ * @return The identifier from the stack.
+ */
 char *get_id_from_stack(){
     if (idStackIndex > 0) {
         return idStack[idStackIndex - 1];
@@ -213,6 +222,11 @@ char *get_id_from_stack(){
     }
 }
 
+/**
+ * Puts the identifier in the stack.
+ *
+ * @param id The identifier to be put in the stack.
+ */
 void put_id_in_stack(char *id){
     if (idStackIndex < MAX_ID_STACK_SIZE) {
         strcpy(idStack[idStackIndex], id);
@@ -223,6 +237,11 @@ void put_id_in_stack(char *id){
     }
 }
 
+/**
+ * Retrieves the number from the stack.
+ *
+ * @return The number from the stack.
+ */
 int get_num_from_stack(){
     if (numStackIndex > 0) {
         return *numStack[numStackIndex - 1];
@@ -231,6 +250,11 @@ int get_num_from_stack(){
     }
 }
 
+/**
+ * Puts the number in the stack.
+ *
+ * @param num The number to be put in the stack.
+ */
 void put_num_in_stack(int num){
     if (numStackIndex < MAX_ID_STACK_SIZE) {
         *numStack[numStackIndex] = num;
@@ -241,6 +265,9 @@ void put_num_in_stack(int num){
     }
 }
 
+/**
+ * Prints the identifier stack.
+ */
 void print_id_stack(){
     printf("idStack: ");
     for (int i = 0; i < idStackIndex; ++i) {
@@ -249,25 +276,22 @@ void print_id_stack(){
     printf("\n");
 }
 
+/**
+ * Analyzes the nodes to determine the variable type.
+ *
+ * @param node The root node of the tree or subtree.
+ */
 void analyzeNodes(TreeNode *node) {
     if (node == NULL) return;
 
-    // Verificar se o nó atual é um T_ID e atribuir o varType com base nos filhos ou irmãos
     if (node->type != NULL) {
-        //printf("Node %s type: %s\n", node->lexeme, get_token_name(node->type));
         for (int i = 0; i < MAX_CHILDREN; ++i) {
             if (node->children[i] != NULL && 
                (node->children[i]->type == T_INT || node->children[i]->type == T_VOID)) {
                 node->varType = node->children[i]->type;
-                //printf("Node %s varType: %s\n", node->lexeme, get_token_name(node->varType));
-                if(node->children[0])
-                //printf("Node1 %s varType: %s\n", node->children[0]->lexeme, get_token_name(node->children[0]->type));
                 if(node->children[1]){
-                                    node->children[1]->varType = node->children[0]->type;
-
-                //printf("Node2 %s varType: %s\n", node->children[1]->lexeme, get_token_name(node->children[1]->varType));
+                    node->children[1]->varType = node->children[0]->type;
                 }
-
                 break;
             }
         }
@@ -276,21 +300,15 @@ void analyzeNodes(TreeNode *node) {
         while (sibling != NULL) {
             if (sibling->type == T_INT || sibling->type == T_VOID) {
                 node->varType = sibling->type;
-                //printf("NodeS %s varType: %d\n", node->lexeme, node->varType);
                 break;
             }
             sibling = sibling->sibling;
         }
     }
 
-    // Processar os filhos do nó atual
     for (int i = 0; i < MAX_CHILDREN; ++i) {
         analyzeNodes(node->children[i]);
     }
 
-    // Processar o irmão do nó atual
     analyzeNodes(node->sibling);
 }
-
-
-
