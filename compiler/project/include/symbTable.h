@@ -27,6 +27,7 @@ typedef struct{
     char *lexeme;
     char lexeme2[MAX_LEXEME_SIZE*2];
     int line;
+    int lineDecl;
     int isFunction;
     int isArray;
     int arraySize;
@@ -38,6 +39,7 @@ typedef struct{
     int type;
     int line;
     int isArray;
+    int arraySize;
 }funcsTable;
 
 typedef struct{

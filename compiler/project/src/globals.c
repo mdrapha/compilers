@@ -148,6 +148,7 @@ void CompilerInit(int argc, char *argv[])
                     preTableArray[count].varType=token;
                     preTableArray[count].token=aux->token;
                     preTableArray[count].line=aux->line;
+                    preTableArray[count].lineDecl=aux->line;
                     preTableArray[count].lexeme=aux->name;
                     preTableArray[count].scope="";
                     aux2=get_next_token(tempA)->lex;
@@ -164,11 +165,11 @@ void CompilerInit(int argc, char *argv[])
                     }
                     if(aux->token==T_LSQBRA){
                         preTableArray[count].isArray=1;
-                        if(aux2->token==T_NUM){
+                        if(get_next_token(tempA)->lex->token==T_NUM){
                             preTableArray[count].arraySize=atoi(aux->name);
                         }
                         else{
-                            preTableArray[count].isArray=0;
+                            preTableArray[count].arraySize=-1;
                         }
                     }
                     else{
@@ -177,7 +178,6 @@ void CompilerInit(int argc, char *argv[])
                     count++;
                 }
             }else if(token==T_ID){
-                    
                     if(aux->token==T_LPAREN){
                         preTableArray[count].isFunction=nFunDeclaracao;
                         funcsTableArray[count2].lexeme=preTableArray[count].lexeme;
@@ -190,6 +190,7 @@ void CompilerInit(int argc, char *argv[])
                         preTableArray[count].isFunction=0;
                     }
                     if(aux->token==T_LSQBRA){
+                        printf("entrou: %s\n",aux->name);
                         preTableArray[count].isArray=1;
                         if(aux2->token==T_NUM){
                             preTableArray[count].arraySize=atoi(aux->name);
@@ -204,6 +205,7 @@ void CompilerInit(int argc, char *argv[])
                     preTableArray[count].varType=token;
                     preTableArray[count].token=aux->token;
                     preTableArray[count].line=aux->line;
+                    preTableArray[count].lineDecl=-1;
                     preTableArray[count].lexeme=aux->name;
                     preTableArray[count].scope="";
                     count++;
