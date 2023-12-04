@@ -215,7 +215,7 @@ void setNodeLevels(TreeNode *node, int level) {
  * @return The identifier from the stack.
  */
 char *get_id_from_stack(){
-    if (idStackIndex > 0) {
+    if (idStackIndex > 0 && idStack[idStackIndex - 1] != NULL) {
         return idStack[idStackIndex - 1];
     } else {
         return NULL;
@@ -242,12 +242,13 @@ void put_id_in_stack(char *id){
  *
  * @return The number from the stack.
  */
-int get_num_from_stack(){
-    if (numStackIndex > 0) {
-        return *numStack[numStackIndex - 1];
-    } else {
+int get_num_from_stack() {
+    if (numStackIndex < 0) {
+        printf("ERROR: Stack is empty\n");
         return -1;
     }
+
+    return *numStack[numStackIndex - 1];
 }
 
 /**
@@ -269,46 +270,111 @@ void put_num_in_stack(int num){
  * Prints the identifier stack.
  */
 void print_id_stack(){
+    if (idStackIndex < 0 || idStackIndex > 1024) {
+        fprintf(stderr, "Error: invalid idStackIndex %d\n", idStackIndex);
+        exit(1);
+    }
+
     printf("idStack: ");
     for (int i = 0; i < idStackIndex; ++i) {
+        if (idStack[i] == NULL) {
+            fprintf(stderr, "Error: invalid idStack[%d]\n", i);
+            exit(1);
+        }
         printf("%s ", idStack[i]);
     }
     printf("\n");
 }
-
 /**
- * Analyzes the nodes to determine the variable type.
- *
- * @param node The root node of the tree or subtree.
+ * @brief Analyses the nodes of a parse tree and updates the varType of T_ID nodes based on the currentType.
+ * 
+ * This function recursively traverses the parse tree starting from the given node. It updates the varType of T_ID nodes
+ * to the currentType if the currentType is T_INT or T_VOID. The currentType is updated if the node's type is T_INT or T_VOID.
+ * 
+ * @param node The root node of the parse tree.
+ * @param parentType The type of the parent node.
  */
-void analyzeNodes(TreeNode *node) {
+
+void analyzeNodes(TreeNode *node, yytoken_kind_t parentType) {
     if (node == NULL) return;
 
-    if (node->type != NULL) {
+    //printf("Analyzing node %s %s\n", node->lexeme,getNodeTypeName(node->nodeType));
+
+    //If a nodeType == nFunDeclaracao; print his children, siblings and his last sibling
+    if(node->nodeType == nFunDeclaracao){
+        //printf("Node %s %s has children: ", node->lexeme,getNodeTypeName(node->nodeType));
         for (int i = 0; i < MAX_CHILDREN; ++i) {
-            if (node->children[i] != NULL && 
-               (node->children[i]->type == T_INT || node->children[i]->type == T_VOID)) {
-                node->varType = node->children[i]->type;
-                if(node->children[1]){
-                    node->children[1]->varType = node->children[0]->type;
-                }
-                break;
+            if(node->children[i] != NULL){
+                //printf("%s %s, ", node->children[i]->lexeme,getNodeTypeName(node->children[i]->nodeType));
+            }
+        }
+        //printf("and siblings: ");
+        if(node->sibling != NULL){
+            printf("%s %s, ", node->sibling->lexeme,getNodeTypeName(node->sibling->nodeType));
+        }
+        if(node->children[2] != NULL){
+            printf("%s %s\n", node->children[2]->lexeme,getNodeTypeName(node->children[2]->nodeType));
+        }
+    }
+
+    yytoken_kind_t currentType = parentType;
+    if (node->type == T_INT || node->type == T_VOID) {
+        currentType = node->type; // Atualiza o tipo atual se o nó for T_INT ou T_VOID
+    }
+
+    if ((node->type == T_ID || node->nodeType==nFunDeclaracao) && (currentType == T_INT || currentType == T_VOID) ) {
+        node->varType = currentType; // Define o varType para T_INT ou T_VOID se o nó atual for T_ID
+        //printf("Setting of %s varType of T_ID node to %s\n",node->lexeme ,get_token_name(currentType));
+    }
+
+    // Chama a função recursivamente para cada filho
+    for (int i = 0; i < MAX_CHILDREN; ++i) {
+        analyzeNodes(node->children[i], currentType);
+    }
+
+    // Chama a função recursivamente para o irmão, mas mantém o parentType original
+    analyzeNodes(node->sibling, parentType);
+}
+
+void printFunDeclaracaoDetails(TreeNode *root, TreeNode *previousSibling) {
+    if (root == NULL) return;
+
+    // Verifica se o type do nó é T_INT ou T_VOID e imprime detalhes
+    if (root->type == T_INT || root->type == T_VOID) {
+        printf("Node Type: %s\n", (root->type == T_INT) ? "int" : "void");
+        printf("Lexeme: %s\n", root->lexeme);
+        printf("Line Number: %d\n", root->lineNumber);
+
+        // Imprime os filhos do nó
+        printf("Children:\n");
+        for (int i = 0; i < MAX_CHILDREN; ++i) {
+            if (root->children[i] != NULL) {
+                printf("  Child %d: %s\n", i, root->children[i]->lexeme);
             }
         }
 
-        TreeNode *sibling = node->sibling;
+        // Imprime os irmãos do nó
+        printf("Siblings:\n");
+        TreeNode *sibling = root->sibling;
         while (sibling != NULL) {
-            if (sibling->type == T_INT || sibling->type == T_VOID) {
-                node->varType = sibling->type;
-                break;
-            }
+            printf("  Sibling: %s\n", sibling->lexeme);
             sibling = sibling->sibling;
         }
+
+        // Imprime o irmão anterior ao nó atual, se existir
+        if (previousSibling != NULL) {
+            printf("Previous Sibling: %s\n", previousSibling->lexeme);
+        } else {
+            printf("No previous sibling.\n");
+        }
     }
 
+    // Continua a percorrer a árvore para os filhos do nó atual
     for (int i = 0; i < MAX_CHILDREN; ++i) {
-        analyzeNodes(node->children[i]);
+        printFunDeclaracaoDetails(root->children[i], NULL); // Filhos não têm irmãos anteriores
     }
 
-    analyzeNodes(node->sibling);
+    // Continua a percorrer a árvore para o irmão do nó atual
+    printFunDeclaracaoDetails(root->sibling, root);
 }
+

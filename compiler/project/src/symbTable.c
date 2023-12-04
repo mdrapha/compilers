@@ -3,13 +3,78 @@
 #include <string.h>
 #include <ctype.h>
 
-
 #define HASH_TABLE_SIZE 101
-
+int globalvars = 0;
 int doubleDeclaration = 0;
 char doubleDeclarationName[MAX_LEXEME_SIZE];
 
+preTable preTableArray[MAX_TABLE_SIZE];
+
+funcsTable funcsTableArray[1000];
+globalID globalIDArray[1000];
+
 SymbolTableEntry *hashTable[HASH_TABLE_SIZE]; // Hash table for the symbol table
+
+
+void checkPreTable(){
+    int i = 0;
+    char *currentScope = "global";
+    while(preTableArray[i].lexeme!=NULL){
+        if(preTableArray[i].isFunction==nFunDeclaracao){
+            preTableArray[i].scope = malloc(sizeof(char)*MAX_LEXEME_SIZE);
+            strcpy(preTableArray[i].scope, "global");
+            currentScope = malloc(sizeof(char)*MAX_LEXEME_SIZE);
+            strcpy(currentScope, preTableArray[i].lexeme);
+        }else{
+            preTableArray[i].scope = malloc(sizeof(char)*MAX_LEXEME_SIZE);
+            strcpy(preTableArray[i].scope, currentScope);
+            if(strcmp(currentScope,"global")==0){
+                int alreadyDeclared = 0;
+                if(globalvars!=0){
+                for(int j=0;globalIDArray[j].lexeme!=NULL;j++){
+                        //printf("Comparing %s with %s\n",globalIDArray[j].lexeme,preTableArray[i].lexeme);
+                        if(strcmp(globalIDArray[j].lexeme,preTableArray[i].lexeme)==0){
+                            alreadyDeclared = 1;
+                            printf("\n\033[1;37;41m");
+                            printf("Error: Var/Function '%s' declared more than once, at line %d.", preTableArray[i].lexeme, preTableArray[i].line);
+                            printf("\033[0m\n\n");
+                            exit(1);
+                            
+                            break;
+                        }
+                    
+                }}
+                //printf("declaring %s\n",preTableArray[i].lexeme);
+                strcpy(globalIDArray[i].lexeme, preTableArray[i].lexeme);
+                globalIDArray[i].line = preTableArray[i].line;
+                globalvars++;
+            }
+        }
+        char *aux = malloc(sizeof(char)*MAX_LEXEME_SIZE*2);
+        strcpy(aux, preTableArray[i].lexeme);
+        strcat(aux, "_");
+        strcat(aux, preTableArray[i].scope);
+        strcpy(preTableArray[i].lexeme2,aux);
+        i++;
+    }
+
+    for(int j=0; preTableArray[j].lexeme!=NULL;j++){
+        if(globalvars!=0){
+        for(int k=0;k<globalvars;k++){
+            if(strcmp(globalIDArray[k].lexeme,preTableArray[j].lexeme)==0 && globalIDArray[k].line!=preTableArray[j].line && preTableArray[j].line==-1){
+                printf("\n\033[1;37;41m");
+                printf("Error: Var/Function '%s' declared more than once, at line %d.", preTableArray[j].lexeme, preTableArray[j].line);
+                printf("\033[0m\n\n");
+                exit(1);
+                break;
+            }
+        }
+        }
+    }
+
+
+
+}
 
 /* Function to calculate the hash value of a string */
 unsigned int hash(char *str) {
@@ -17,143 +82,90 @@ unsigned int hash(char *str) {
     for (char *p = str; *p != '\0'; p++) {
         hashValue = *p + 31 * hashValue;
     }
-    return hashValue % HASH_TABLE_SIZE;
+    return hashValue % HASH_TABLE_SIZE; 
 }
 
 /* Function to insert a symbol in the symbol table without specifying its type */
-void insertSymbol(TreeNode *Node, int scopeLevel) {
-    if(strcmp(Node->lexeme, "int")==0 || strcmp(Node->lexeme, "void")==0){
-        return;
-    }
-    unsigned int index = hash(Node->lexeme);
+void insertSymbol(preTable entry) {
+
+    unsigned int index = hash(entry.lexeme2);
     SymbolTableEntry *current = hashTable[index];
 
-    // Check if the symbol already exists in the current scope
+    // Verifica se o símbolo já existe
     while (current != NULL) {
-        if ((strcmp(current->identifier, Node->lexeme) == 0 && current->scopeLevel == scopeLevel) || (current->isFunction == nVarDeclaracao)) {
-            // Update the declaration line if needed
-            
-            if ((Node->nodeType == nVarArrDecl || Node->nodeType==nVarDeclaracao || Node->nodeType==nFunDeclaracao || Node->nodeType==nParam) && (current->lineDecl == -1)) {
-                if(current->lineDecl>0)
-                {
-                    doubleDeclaration = 1;
-                    strcpy(doubleDeclarationName, current->identifier);
-                }else
-                current->lineDecl = Node->lineNumber;
-            }
-            // Update the usage lines
-            if (Node->isUsage) {
+        if (strcmp(current->lexeme, entry.lexeme2) == 0) {
+            // Atualiza a linha de declaração e as linhas de uso, se necessário
+            if (entry.varType == T_INT || entry.varType == T_VOID) {
+                // É uma declaração
+                current->lineDecl = entry.line;
+            } else if (entry.varType == T_ID) {
+                // É um uso
                 int *temp = realloc(current->linesUsed, sizeof(int) * (current->nLinesUsed + 2));
                 if (temp == NULL) {
                     printf("Error: Memory allocation failed.\n");
-                    return;
+                    exit(1);
                 }
                 current->linesUsed = temp;
-                current->linesUsed[current->nLinesUsed++] = Node->lineNumber;
+                current->linesUsed[current->nLinesUsed++] = entry.line;
                 current->linesUsed[current->nLinesUsed] = -1;
             }
-            return; // Symbol already exists and has been updated if necessary
+            return; // Símbolo já existe e foi atualizado
         }
         current = current->next;
     }
+    int foundInFuncsTable = 0;
+    int i;
 
-    // Insert a new symbol if it was not found
-    SymbolTableEntry *entry = (SymbolTableEntry *)malloc(sizeof(SymbolTableEntry));
-    strcpy(entry->identifier, Node->lexeme);
-    entry->scopeLevel = scopeLevel;
-    entry->lineDecl = (Node->nodeType == nVarArrDecl || Node->nodeType==nVarDeclaracao || Node->nodeType==nFunDeclaracao || Node->nodeType==nParam) ? Node->lineNumber : -1;
-    entry->isFunction = Node->nodeType;
-    entry->isArray = Node->isArray;
-    entry->value = (Node->nodeType == nVarArrDecl || Node->nodeType==nVarDeclaracao || Node->nodeType==nFunDeclaracao || Node->nodeType==nParam) ? Node->ArraySize : -1;
-    if(entry->isFunction == nFunDeclaracao || entry->isFunction == nFunCall){
-    entry->type =  Node->varType;
+     for (i = 0; funcsTableArray[i].lexeme != NULL; i++) {
+        if (strcmp(funcsTableArray[i].lexeme, entry.lexeme) == 0) {
+            //printf("Found in funcsTableArray\n");
+            foundInFuncsTable = 1;
+            break;
+        }
     }
-    else{
-    entry->type = T_INT;
+
+    // Insere um novo símbolo na tabela de símbolos
+    SymbolTableEntry *newEntry = (SymbolTableEntry *)malloc(sizeof(SymbolTableEntry));
+    if (newEntry == NULL) {
+        printf("Error: Memory allocation failed.\n");
+        exit(1);
     }
-    
 
-    // Initialize the linesUsed array
-    entry->linesUsed = malloc(sizeof(int));
-    entry->nLinesUsed = 0;
-    entry->linesUsed[entry->nLinesUsed] = -1; // End marker
+    strcpy(newEntry->identifier, entry.lexeme);
+    strcpy(newEntry->lexeme, entry.lexeme2);
+    newEntry->scopeLevel = 0;
 
-    if (Node->nodeType == nFunDeclaracao) {
-        entry->scope = malloc(sizeof(char) * MAX_LEXEME_SIZE);
-        strcpy(entry->scope, "global");
-        currentScope = malloc(sizeof(char) * MAX_LEXEME_SIZE);
-        strcpy(currentScope, Node->lexeme);
+    if (foundInFuncsTable) {
+        // Herda atributos da função na funcsTableArray
+        
+        newEntry->lineDecl = funcsTableArray[i].line;
+        newEntry->type = funcsTableArray[i].type;
+        newEntry->isArray = funcsTableArray[i].isArray;
     } else {
-        entry->scope = malloc(sizeof(char) * MAX_LEXEME_SIZE);
-        strcpy(entry->scope, currentScope);
+        newEntry->lineDecl = (entry.varType == T_INT || entry.varType == T_VOID) ? entry.line : -1;
+        newEntry->type = entry.varType;
+        newEntry->isArray = entry.isArray;
     }
 
-    // Add the new symbol to the beginning of the list at the hash index
-    entry->next = hashTable[index];
-    hashTable[index] = entry;
+    newEntry->isFunction = entry.isFunction;
+    newEntry->scope = entry.scope;
+    newEntry->value = entry.arraySize;
+    newEntry->linesUsed = malloc(sizeof(int));
+    newEntry->nLinesUsed = 0;
+    newEntry->linesUsed[0] = -1;
+
+    // Adiciona o novo símbolo no início da lista no índice hash
+    newEntry->next = hashTable[index];
+    hashTable[index] = newEntry;
 }
 
-bool symbolExistsInScope(TreeNode *aux, int scopeLevel, int lineNumber) {
-    unsigned int index = hash(aux->lexeme);
-    SymbolTableEntry *current = hashTable[index];
-    bool found = false;
 
-    while (current != NULL) {
-        if (strcmp(current->identifier, aux->lexeme) == 0 && current->scopeLevel == scopeLevel) {
-            // Symbol found in the same scope
-            found = true;
-
-            // Update usage lines if necessary
-            if (aux->isUsage) {
-                int *temp = realloc(current->linesUsed, sizeof(int) * (current->nLinesUsed + 2)); // +2 to include the new number and the -1 marker
-                if (temp == NULL) {
-                    printf("Error: Memory allocation failed.\n");
-                    return false;
-                }
-                current->linesUsed = temp;
-                current->linesUsed[current->nLinesUsed++] = lineNumber; // Add the new line
-                current->linesUsed[current->nLinesUsed] = -1; // Update the end marker
-            }
-            break; // Stop the search as the symbol has been found
-        }
-        current = current->next;
-    }
-
-    if (!found) {
-        // Insert the symbol into the symbol table if not found
-        insertSymbol(aux, scopeLevel);
-    }
-
-    return found;
-}
-
-// Function to create the symbol table from the syntax tree
-void createSymbolTable(TreeNode *node, int scopeLevel) {
-   // printf("createSymbolTable: %s %s %d %s \n", node->lexeme, node->isDecl ? "Decl" : "Usage", node->lineNumber, get_token_name(node->type) );
-    if (node == NULL)
-        return;
-
-    // Process the current node
-    if (node->type == T_ID && strcmp(node->lexeme, "") != 0) {
-        TreeNode *aux = node;
-        if (!symbolExistsInScope(aux, scopeLevel, aux->lineNumber)) {
-            insertSymbol(aux, scopeLevel);
-        }
-    }
-
-    // Process the children of the current node
-    for (int i = 0; i < MAX_CHILDREN; i++) {
-        createSymbolTable(node->children[i], scopeLevel + (node->nodeType == nCompostoDecl));
-    }
-
-    // Process the sibling of the current node
-    createSymbolTable(node->sibling, scopeLevel);
-}
 
 // Function to start creating the symbol table
 void startSymbolTableCreation(TreeNode *root) {
-    memset(hashTable, 0, sizeof(hashTable)); // Initialize the hash table
-    createSymbolTable(root, 0); // Start with scope level 0
+   for (int i = 0; preTableArray[i].lexeme != NULL; i++) {
+        insertSymbol(preTableArray[i]);
+    }
 }
 
 // Function to free the symbol table
@@ -182,7 +194,7 @@ void printSymbolTable() {
         SymbolTableEntry *entry = hashTable[i];
         while (entry != NULL) {
             printf("\033[1;36m|\033[1m %-20s \033[1;36m|\033[0m %-10d \033[1;36m|\033[0m %-15s \033[1;36m|\033[0m %-10s \033[1;36m|\033[0m %-6s \033[1;36m|\033[0m %-6s \033[1;36m|\033[0m %-5s \033[1;36m|\033[0m ",
-                   entry->identifier, entry->lineDecl, entry->scope, (entry->isFunction == nFunDeclaracao || entry->isFunction == nFunCall) ? "Func" : "Var",
+                   entry->identifier, entry->lineDecl, entry->scope, (entry->isFunction==1) ? "Func" : "Var",
                   ( entry->type==T_INT)?"int":"void", (entry->isArray)?"Array":"No", (entry->isArray)?(tostring_1(entry->value)):"-");
 
             // Print lines used
@@ -217,28 +229,28 @@ int checkDeclarations() {
     for (int i = 0; i < HASH_TABLE_SIZE; i++) {
         SymbolTableEntry *entry = hashTable[i];
         while (entry != NULL) {
-            if (entry->lineDecl == -1 ||
-                verify_linesDecl(entry->lineDecl, entry->linesUsed)) {
-                printf("\n\033[1;37;41m");
-                printf("Error: Symbol '%s' used at line " , entry->identifier);
-                int j = 0;
-                while (entry->linesUsed[j] != -1) {
-                    if (j > 0) {
-                        printf(",");
-                    }
-                    printf("%d", entry->linesUsed[j]);
-                    j++;
-                }
-                printf(" but not declared correctly.");
-                printf("\033[0m\n\n");
-                error = 1;
-            }
-            if (doubleDeclaration!=0) {
-                printf("\n\033[1;37;41m");
-                printf("Error: Some function have been declared more than once.");
-                printf("\033[0m\n\n");
-                error = 1;
-            }
+            // if (entry->lineDecl == -1 ||
+            //     verify_linesDecl(entry->lineDecl, entry->linesUsed)) {
+            //     printf("\n\033[1;37;41m");
+            //     printf("Error: Symbol '%s' used at line " , entry->identifier);
+            //     int j = 0;
+            //     while (entry->linesUsed[j] != -1) {
+            //         if (j > 0) {
+            //             printf(",");
+            //         }
+            //         printf("%d", entry->linesUsed[j]);
+            //         j++;
+            //     }
+            //     printf(" but not declared correctly.");
+            //     printf("\033[0m\n\n");
+            //     error = 1;
+            // }
+            // if (doubleDeclaration!=0) {
+            //     printf("\n\033[1;37;41m");
+            //     printf("Error: Some function have been declared more than once.");
+            //     printf("\033[0m\n\n");
+            //     error = 1;
+            // }
 
             entry = entry->next;
         }

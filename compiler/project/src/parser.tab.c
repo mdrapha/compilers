@@ -1244,7 +1244,7 @@ yyreduce:
     aux2->type = T_NUM;
     strcpy(aux2->lexeme, tostring(get_num_from_stack()));
     aux1->ArraySize=atoi(aux2->lexeme);
-    printf("Array size: %d\n",aux1->ArraySize);
+    //printf("Array size: %d\n",aux1->ArraySize);
     aux2->nodeType= nValue; // Defining the node type as a variable declaration
     aux2->lineNumber = currentTokenLine;
     addNode(&(yyval.node), aux2, 1); // Adiciona aux2 como o segundo filho
@@ -1294,7 +1294,6 @@ yyreduce:
     (yyval.node)->isFunction = 1; // Defining the node type as a function declaration
     (yyval.node)->isArray = 0; // Defining the node type as a array declaration
     (yyval.node)->isParam = 0; // Defining the node type as a array declaration
-
 
     addNode(&(yyval.node), (yyvsp[-4].node), 1);    // Adiciona identificador da função como o primeiro filho
     addNode(&(yyval.node), (yyvsp[-2].node), 0);    // Adiciona parâmetros como o segundo filho

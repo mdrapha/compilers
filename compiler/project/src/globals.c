@@ -1,9 +1,9 @@
 #include "../include/globals.h"
 
 // Definitions of global variables
-FILE *file;
-Buffer *buffer;
-lexeme *lex = NULL;
+FILE *file, *fileaux;
+Buffer *buffer, *bufferaux;
+lexeme *lex = NULL; lexeme *lexaux = NULL;
 TreeNode *parseTree = NULL;
 
 // Variable to manage the current scope
@@ -38,6 +38,7 @@ void CompilerInit(int argc, char *argv[])
         exit(1);
     }
     file = fopen(file_name, "r");
+    fileaux = fopen(file_name, "r");
 
     if (file == NULL)
     {
@@ -128,6 +129,94 @@ void CompilerInit(int argc, char *argv[])
     if (opFlags[2] == TRUE) // Symbol Table
     {
         printf("\033[1;32mSymbol Table:\n\033[0m");
+        lexeme *aux, *aux2;
+        Analysis *tempA = createGNT(lexaux, bufferaux, fileaux);
+        Analysis *tempB = NULL;
+        //printf("\033[1;32m\nPre-Table:\n\033[0m");
+        int count=0, count2=0;
+        char actualScope[MAX_LEXEME_SIZE];
+        char lastScope[MAX_LEXEME_SIZE];
+        strcpy(actualScope,"global");
+        
+        while(!bufferaux->eof){
+
+            tempB=get_next_token(tempA);
+            int token=tempB->lex->token;
+            if(token == T_INT || token ==T_VOID){
+                aux=get_next_token(tempA)->lex;
+                if(aux->token==T_ID){
+                    preTableArray[count].varType=token;
+                    preTableArray[count].token=aux->token;
+                    preTableArray[count].line=aux->line;
+                    preTableArray[count].lexeme=aux->name;
+                    preTableArray[count].scope="";
+                    aux2=get_next_token(tempA)->lex;
+                    if(aux2->token==T_LPAREN){
+                        preTableArray[count].isFunction=nFunDeclaracao;
+                        funcsTableArray[count2].lexeme=preTableArray[count].lexeme;
+                        funcsTableArray[count2].type=token;
+                        funcsTableArray[count2].line=aux->line;
+                        funcsTableArray[count2].isArray=0;
+                        count2++;
+                    }
+                    else{
+                        preTableArray[count].isFunction=0;
+                    }
+                    if(aux->token==T_LSQBRA){
+                        preTableArray[count].isArray=1;
+                        if(aux2->token==T_NUM){
+                            preTableArray[count].arraySize=atoi(aux->name);
+                        }
+                        else{
+                            preTableArray[count].isArray=0;
+                        }
+                    }
+                    else{
+                        preTableArray[count].isArray=0;
+                    }
+                    count++;
+                }
+            }else if(token==T_ID){
+                    
+                    if(aux->token==T_LPAREN){
+                        preTableArray[count].isFunction=nFunDeclaracao;
+                        funcsTableArray[count2].lexeme=preTableArray[count].lexeme;
+                        funcsTableArray[count2].type=token;
+                        funcsTableArray[count2].line=aux->line;
+                        funcsTableArray[count2].isArray=0;
+                        count2++;
+                    }
+                    else{
+                        preTableArray[count].isFunction=0;
+                    }
+                    if(aux->token==T_LSQBRA){
+                        preTableArray[count].isArray=1;
+                        if(aux2->token==T_NUM){
+                            preTableArray[count].arraySize=atoi(aux->name);
+                        }
+                        else{
+                            preTableArray[count].isArray=0;
+                        }
+                    }
+                    else{
+                        preTableArray[count].isArray=0;
+                    }
+                    preTableArray[count].varType=token;
+                    preTableArray[count].token=aux->token;
+                    preTableArray[count].line=aux->line;
+                    preTableArray[count].lexeme=aux->name;
+                    preTableArray[count].scope="";
+                    count++;
+                
+            }
+        }
+
+        
+        checkPreTable();
+        currentTokenLine=1;
+        currentLine=1;
+
+
         int result = yyparse();
         if (result == 0)
         {
@@ -136,13 +225,16 @@ void CompilerInit(int argc, char *argv[])
                 TreeNode *root = parseTree;
 
                 setNodeLevels(root, 0); // Set the level of each node
-                analyzeNodes(root);
+                //printFunDeclaracaoDetails(root, NULL);
+                analyzeNodes(root, YYUNDEF);
                 startSymbolTableCreation(root);
                 int errorFlag=checkDeclarations();
                 if(errorFlag==1){
                     printf("\033[1;37;41m");
                     printf("If u want to see the Symbol Table put 1 or 0 to exit");
                     printf("\033[0m\n");
+
+                
                     
                     int option;
                     scanf("%d",&option);
@@ -171,6 +263,8 @@ void initGlobals()
 {
     // Initialize file-related variables
     buffer = malloc(sizeof(Buffer));
+    bufferaux = malloc(sizeof(Buffer));
+
     if (buffer)
     {
         initBuffer(buffer);
@@ -180,9 +274,17 @@ void initGlobals()
         printf("Error allocating memory for buffer\n");
         exit(1);
     }
+    if(bufferaux){
+        initBuffer(bufferaux);
+    }
+    else{
+        printf("Error allocating memory for bufferaux\n");
+        exit(1);
+    }
 
     // Initialize lex-related variables
     lex = malloc(sizeof(lexeme));
+    lexaux = malloc(sizeof(lexeme));
     if (lex)
     {
         initLexeme(lex);
@@ -194,6 +296,16 @@ void initGlobals()
     else
     {
         printf("Error allocating memory for lexeme\n");
+        exit(1);
+    }
+    if(lexaux){
+        initLexeme(lexaux);
+        if(lexaux!=NULL){
+            lexaux->name=malloc(sizeof(char)*MAX_LEXEME_SIZE);
+        }
+    }
+    else{
+        printf("Error allocating memory for lexaux\n");
         exit(1);
     }
 
@@ -237,7 +349,11 @@ void initGlobals()
     currentScope = "global"; // Assuming it will be initialized later if needed
     idStackIndex = 0;
     numStackIndex = 0;
+
+
 }
+
+
 
 /*Variable to manage the file name*/
 const char *file_name;
@@ -274,3 +390,6 @@ int **numStack;
 
 /* Variable to manage the num stack index*/
 int numStackIndex;
+
+/* Variable to manage the type of some variable or function*/
+int currentType=YYUNDEF;

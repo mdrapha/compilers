@@ -135,4 +135,5 @@ void put_num_in_stack(int num);
 
 void print_id_stack();
 
-void analyzeNodes(TreeNode *node);
+void analyzeNodes(TreeNode *node, yytoken_kind_t parentType);
+void printFunDeclaracaoDetails(TreeNode *root, TreeNode *previousSibling);

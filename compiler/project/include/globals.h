@@ -62,6 +62,10 @@ extern int **numStack;
 /*Variable to manage the scope counter*/
 extern int scopeCounter;
 
+extern int currentType;
+
 void initGlobals();
+
+void processTokens(); 
 
 void CompilerInit(int argc, char *argv[]);
